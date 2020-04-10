@@ -1,0 +1,194 @@
+---
+title: "Introduction to (Social) Network Analysis in R"
+author: "Dr Griffith Rees"
+date: "08/04/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Network Data
+
+Today we're going to demonstrate ways of loading network data, visualising it and ways the network structure could answer research questions.
+
+## What is a Network?
+
+What is a network? It's a way of representing a structure of how things are connected (or not). They can be social (like who tweets to who), economic (which company employs who), engineering (which part was used to make this product) etc. The math is a network--also call a *graph* in mathematics (confusing eh?)--and it's a tool like many other quantiative methods that can help answer research questions. 
+
+## Installing R and iGraph
+
+We're going to focus on the iGraph package for today. There are *many* other pacakges: LIST but this is a fairly comprehensive one for getting started. I recommend looking through the iGraph documentation for your particular interests before trying the other packages, and feel free to email me with questions (helpful if you can be specific what you're trying to achieve).
+
+Survey: who's installed R
+
+Cool thanks let's just make sure that works for everyone. For those that have got it installed and running feel free to continue further down this handout to play around with the data.
+
+Please go to (https://rstudio.com/products/rstudio/download/#download)
+
+It should fit the operating system your using (Windows, Linux or Mac) and download RStudio. If you could fill in the survey when that's done that'd be great
+
+Now let's install (https://igraph.org/r/)
+
+```{r}
+install.packages("igraph")
+```
+
+and then load it in your R console.
+
+```{r}
+library(igraph)
+```
+
+Survey of people having completed this.
+
+
+# Networks (aka *graphs*)
+
+In this section we will be using a small network that indicates [interactions in the movie Star Wars Episode IV](http://evelinag.com/blog/2015/12-15-star-wars-social-network/). Available here: (https://github.com/pablobarbera/data-science-workshop). Here, each node is a character and each edge indicates whether they appeared together in a scene of the movie. Edges here are thus _undirected_ and they also have weights attached, since they can appear in multiple scenes together.
+
+The first step is to read the list of edges and nodes in this network:
+
+```{r}
+edges <- read.csv("data/star-wars-network-edges.csv")
+head(edges)
+nodes <- read.csv("data/star-wars-network-nodes.csv")
+head(nodes)
+```
+For example, we learn that C-3PO and R2-D2 appeared in 17 scenes together.
+
+How do we convert these two datasets into a network object in R? There are multiple packages to work with networks, but the most popular is `igraph` because it's very flexible and easy to do, and in my experience it's much faster and scales well to very large networks. Other packages that you may want to explore are `sna` and `networks`. We'll see an example later in this class, because some network modeling packages are not compatible with `igraph`.
+
+Now, how do we create the igraph object? We can use the `graph_from_data_frame` function, which takes two arguments: `d`, the data frame with the edge list in the first two columns; and `vertices`, a data frame with node data with the node label in the first column. (Note that igraph calls the nodes `vertices`, but it's exactly the same thing.)
+
+```{r, message=FALSE}
+# install.packages("igraph")
+library(igraph)
+g <- graph_from_data_frame(d=edges, vertices=nodes, directed=FALSE)
+g
+```
+
+What does it mean?
+- `U` means undirected  
+- `N` means named graph  
+- `W` means weighted graph  
+- `22` is the number of nodes  
+- `60` is the number of edges  
+- `name (v/c)` means _name_ is a node attribute and it's a character  
+- `weight (e/n)` means _weight_ is an edge attribute and it's numeric  
+
+This is how you access specific elements within the igraph object:
+
+```{r}
+V(g) # nodes
+V(g)$name # names of each node
+vertex_attr(g) # all attributes of the nodes
+E(g) # edges
+E(g)$weight # weights for each edge
+edge_attr(g) # all attributes of the edges
+g[] # adjacency matrix
+g[1,] # first row of adjacency matrix
+```
+
+
+## Basic undirected network
+```{r undirected, echo=FALSE, message=FALSE, warning=FALSE, }
+g1 <- graph( edges=c("A","B", "B","C", "C", "A"), directed=FALSE ) 
+plot(g1, vertex.size=100, vertex.label.cex=5, edge.width=5)
+```
+
+- A, B and C are *nodes* or *vertices* (people, companies, countries etc.)
+- Connections are often called *ties* or *edges* (friendship, communication, contracts, kinship etc.)
+- Undirected
+$$A \ue B;B \ue C; C \ue A$$
+
+## Advantages
+
+* A way of representing a system (social, economic, digital, biological etc.)
+* Can help explore and model
+    + Properties [@wassermanSocialNetworkAnalysis1994]
+    + Visualisations [@kerrenMultivariateNetworkVisualization2014]
+    + Dynamics [@saavedraAsymmetricDisassemblyRobustness2008]
+    + Simulations [@bearmanChainsAffectionStructure2004]
+    
+## Risks
+
+* Complexity and size of data
+* Sampling issues: **not law of large numbers** [@browneSnowballSamplingUsing2005]
+* Pleathora of options [@buttsRevisitingFoundationsNetwork2009]
+* Causal claims [@vanderweeleSocialNetworksCausal2013]
+    
+# Nodes
+
+## Category, Type & Attribute
+```{r types, echo=FALSE, message=FALSE, warning=FALSE, }
+V(g1)[0:1]$color <- "green"
+plot(g1, vertex.shape=c("circle", "square", "circle"), vertex.size=c(100, 100, 160), vertex.label.cex=5, edge.width=5)
+```
+
+- Category or group (club membership, kinship etc.)
+- Type (employee, firm, region etc.)
+- Attribute (age, ethnicity, size etc.)
+
+## Structure of Romantic and Sexual Relations
+
+<!--Could add bipartite here-->
+
+# Edges
+
+## Direction, Weight & Type
+```{r directed, echo=FALSE, message=FALSE, warning=FALSE, }
+edge.scale <- c(7, 28, 3, 3, 5) 
+arrow.scale <- edge.scale/1.2
+g1 <- graph( edges=c("A","B", "B","C", "C", "A", "A", "C", "B", "B"), 
+             directed=TRUE ) 
+E(g1)$color <- c("blue", "red", "blue", "blue", "blue")
+plot(g1, vertex.size=100,
+     vertex.label.cex=5,
+     edge.width=edge.scale,
+     edge.arrow.size=arrow.scale,
+     )
+```
+
+- Direction (transaction, contract, message sender vs reciever etc.)
+- Weight (amount of transaction, length of contract, frequency of message etc.)
+- Type (type of transaction, cateory, texts vs tweets etc.)
+- $A \de B; B \de C; C \leftrightarrow A; B \de B$
+
+## Too impressive to be true?
+
+<iframe width="560" height="315" src="http://www.youtube.com/embed/8aEtyRD1j5U?rel=0" frameborder="0" allowfullscreen></iframe>
+
+## That's what lots have said[^1]...
+
+- *Homophily and Contagion Are Generically Confounded in Observational Social Network Studies* [@shaliziHomophilyContagionAre2011]
+- *The “unfriending” problem: The consequences of homophily in friendship retention for causal estimates of social influence* [@noelUnfriendingProblemConsequences2011]
+- *Is obesity contagious? Social networks vs. environmental factors in the obesity epidemic* [@cohen-coleObesityContagiousSocial2008]
+- *The spread of obesity in a large social network over 32 years* [@merckenDynamicsAdolescentFriendship2010][^2]
+- ... and a reply: Christakis & Fowler [-@christakisSocialContagionTheory2013]
+
+[^1]: See <https://statmodeling.stat.columbia.edu/2011/06/10/christakis-fowl/> for some summary
+[^2]: Full disclosure: one of my examiners was a co-author on one of these papers...
+
+# What else?
+
+## There's lots
+
+- Bipartite networks (2 types of nodes)
+- Negative ties (few studies but a recent [*Social Networks* special issue](https://www.sciencedirect.com/journal/social-networks/vol/60))
+- [Erdős–Bacon number](https://en.wikipedia.org/wiki/Erd%C5%91s%E2%80%93Bacon_number)
+
+## Useful links
+
+* Most of this comes from/is inspired by Katherine Ognyanova's
+  + [**Brilliant** visualisation guide](http://www.kateto.net/wp-content/uploads/2019/06/Sunbelt%202019%20R%20Network%20Visualization%20Workshop.pdf) 
+  + Excellent github repo <https://github.com/kateto/R-Network-Visualization-Workshop>
+* A bunch of useful links to papers/software etc. <https://github.com/briatte/awesome-network-analysis>
+  
+# Thanks
+
+<!--## Another network time series...
+![Network dynamics of creativity](collab_canvas.mov){ width=60% } -->
+
+## References
