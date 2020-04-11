@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(igraph)
 ```
 
 # Network Data
@@ -19,7 +20,11 @@ What is a network? It's a way of representing a structure of how things are conn
 
 ## Installing R and iGraph
 
-We're going to focus on the iGraph package for today. There are *many* other pacakges: LIST but this is a fairly comprehensive one for getting started. I recommend looking through the iGraph documentation for your particular interests before trying the other packages, and feel free to email me with questions (helpful if you can be specific what you're trying to achieve).
+We're going to focus on the iGraph package for today. There are *many* other options: 
+
+ - 
+
+but this is a fairly comprehensive one for getting started. I recommend looking through the iGraph documentation for your particular interests before trying the other packages, and feel free to email me with questions (helpful if you can be specific what you're trying to achieve).
 
 Survey: who's installed R
 
@@ -64,7 +69,7 @@ Now, how do we create the igraph object? We can use the `graph_from_data_frame` 
 
 ```{r, message=FALSE}
 # install.packages("igraph")
-library(igraph)
+# library(igraph)
 g <- graph_from_data_frame(d=edges, vertices=nodes, directed=FALSE)
 g
 ```
