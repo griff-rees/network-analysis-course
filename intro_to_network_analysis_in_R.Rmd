@@ -5,24 +5,37 @@ date: "08/04/2020"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(igraph)
+
+if (!require(igraph)) {
+    install.packages("igraph")
+}
 ```
 
 # Network Data
 
-Today we're going to demonstrate ways of loading network data, visualising it and ways the network structure could answer research questions.
+Today we're going to demonstrate one way of loading network data, visualising it and how the network structure can help answer research questions.
 
 ## What is a Network?
 
-What is a network? It's a way of representing a structure of how things are connected (or not). They can be social (like who tweets to who), economic (which company employs who), engineering (which part was used to make this product) etc. The math is a network--also call a *graph* in mathematics (confusing eh?)--and it's a tool like many other quantiative methods that can help answer research questions. 
+A network is a way of representing how things are connected (or not). They can be social (who tweets to who), economic (which company employs which people), engineering (which parts were used in each product) etc. The representing of these connetions is a network--also call a [graph](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics) in mathematics, (confusing eh?)--and it's a tool, often applied to help quantiatively (and sometimes qualitatively) answer research questions. 
 
 ## Installing R and iGraph
 
-We're going to focus on the iGraph package for today. There are *many* other options: 
+We're going to focus on the iGraph R package for today. There are *many* other options: 
 
- - 
+* R
+    + [iGraph](https://igraph.org/r/) built on C++ library, easier to get started and pre-dates ggplot so provides it's own visualisation options
+    + [statnet](http://statnet.org/) focused particularly on exponential random graphs (ERG) methods, maintained by [Prof Carter T. Butts](https://scholar.google.co.uk/citations?user=-VGAs1cAAAAJ&hl=en)
+    + [ggraph](https://ggraph.data-imaginist.com/) network visualisation in a way similar to [ggplot](https://ggplot2.tidyverse.org/reference/ggplot.html), maintained by [Thomas D Pedersen](https://www.data-imaginist.com/)
+    + [Rsiena](https://www.stats.ox.ac.uk/~snijders/siena/) Actor-oriented logitudinal models (ERG), created by [Tom Snijders](https://cran.r-project.org/web/packages/RSiena/index.html)
+* Python (my language of choice)
+    + [networkx](https://networkx.github.io/) very old, not very fast but very flexible (my package of choice for ideas)
+    + [igraph](https://igraph.org/python/) Effectively the same as the R package (both use the same underlying C++ library)
+    + [graph-tool](https://graph-tool.skewed.de/) Much newer, very speed efficient (C++ underneath)
+* Windows
+    + [UCINET](https://sites.google.com/site/ucinetsoftware/home) windows, developed and maintaied by 
 
 but this is a fairly comprehensive one for getting started. I recommend looking through the iGraph documentation for your particular interests before trying the other packages, and feel free to email me with questions (helpful if you can be specific what you're trying to achieve).
 
@@ -30,19 +43,19 @@ Survey: who's installed R
 
 Cool thanks let's just make sure that works for everyone. For those that have got it installed and running feel free to continue further down this handout to play around with the data.
 
-Please go to (https://rstudio.com/products/rstudio/download/#download)
+Please go to <https://rstudio.com/products/rstudio/download/#download>
 
 It should fit the operating system your using (Windows, Linux or Mac) and download RStudio. If you could fill in the survey when that's done that'd be great
 
-Now let's install (https://igraph.org/r/)
+Now let's install <https://igraph.org/r/>
 
-```{r}
+```{r, eval = FALSE}
 install.packages("igraph")
 ```
 
 and then load it in your R console.
 
-```{r}
+```{r, include = FALSE}
 library(igraph)
 ```
 
@@ -51,7 +64,7 @@ Survey of people having completed this.
 
 # Networks (aka *graphs*)
 
-In this section we will be using a small network that indicates [interactions in the movie Star Wars Episode IV](http://evelinag.com/blog/2015/12-15-star-wars-social-network/). Available here: (https://github.com/pablobarbera/data-science-workshop). Here, each node is a character and each edge indicates whether they appeared together in a scene of the movie. Edges here are thus _undirected_ and they also have weights attached, since they can appear in multiple scenes together.
+In this section we will be using a small network that indicates [interactions in the movie Star Wars Episode IV](http://evelinag.com/blog/2015/12-15-star-wars-social-network/). Available here: <https://github.com/pablobarbera/data-science-workshop>. Here, each node is a character and each edge indicates whether they appeared together in a scene of the movie. Edges here are thus _undirected_ and they also have weights attached, since they can appear in multiple scenes together.
 
 The first step is to read the list of edges and nodes in this network:
 
@@ -68,20 +81,19 @@ How do we convert these two datasets into a network object in R? There are multi
 Now, how do we create the igraph object? We can use the `graph_from_data_frame` function, which takes two arguments: `d`, the data frame with the edge list in the first two columns; and `vertices`, a data frame with node data with the node label in the first column. (Note that igraph calls the nodes `vertices`, but it's exactly the same thing.)
 
 ```{r, message=FALSE}
-# install.packages("igraph")
-# library(igraph)
 g <- graph_from_data_frame(d=edges, vertices=nodes, directed=FALSE)
 g
 ```
 
 What does it mean?
-- `U` means undirected  
-- `N` means named graph  
-- `W` means weighted graph  
-- `22` is the number of nodes  
-- `60` is the number of edges  
-- `name (v/c)` means _name_ is a node attribute and it's a character  
-- `weight (e/n)` means _weight_ is an edge attribute and it's numeric  
+
+* `U` means undirected  
+* `N` means named graph  
+* `W` means weighted graph  
+* `22` is the number of nodes  
+* `60` is the number of edges  
+* `name (v/c)` means _name_ is a node attribute and it's a character  
+* `weight (e/n)` means _weight_ is an edge attribute and it's numeric  
 
 This is how you access specific elements within the igraph object:
 
