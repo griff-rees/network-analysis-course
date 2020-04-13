@@ -3,6 +3,14 @@ title: "Introduction to (Social) Network Analysis in R"
 author: "Dr Griffith Rees"
 date: "08/04/2020"
 output: html_document
+bibliography: course.bib
+output:
+  html_document:
+    toc: true
+    # toc_depth: 2 (defaults to 3)
+    toc_float: true
+    includes:
+      before_body: doc_prefix.html
 ---
 
 ```{r setup, include = FALSE}
