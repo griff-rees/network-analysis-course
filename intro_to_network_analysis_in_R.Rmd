@@ -2,7 +2,7 @@
 title: "Introduction to (Social) Network Analysis in R"
 author: "Dr Griffith Rees"
 date: "08/04/2020"
-output: html_document
+# output: html_document
 bibliography: course.bib
 output:
   html_document:
@@ -11,6 +11,7 @@ output:
     toc_float: true
     includes:
       before_body: doc_prefix.html
+link-citations: true
 ---
 
 ```{r setup, include = FALSE}
@@ -132,17 +133,17 @@ $$A \ue B;B \ue C; C \ue A$$
 
 * A way of representing a system (social, economic, digital, biological etc.)
 * Can help explore and model
-    + Properties [@wassermanSocialNetworkAnalysis1994]
-    + Visualisations [@kerrenMultivariateNetworkVisualization2014]
-    + Dynamics [@saavedraAsymmetricDisassemblyRobustness2008]
-    + Simulations [@bearmanChainsAffectionStructure2004]
+    + Properties [@wasserman_social_1994]
+    + Visualisations [@kerren_multivariate_2014]
+    + Dynamics [@saavedra_asymmetric_2008]
+    + Simulations [@bearman_chains_2004]
     
 ## Risks
 
 * Complexity and size of data
-* Sampling issues: **not law of large numbers** [@browneSnowballSamplingUsing2005]
-* Pleathora of options [@buttsRevisitingFoundationsNetwork2009]
-* Causal claims [@vanderweeleSocialNetworksCausal2013]
+* Sampling issues: **not law of large numbers** [@browne_snowball_2005]
+* Pleathora of options [@butts_revisiting_2009]
+* Causal claims [@vanderweele_social_2013]
     
 # Nodes
 
@@ -187,11 +188,11 @@ plot(g1, vertex.size=100,
 
 ## That's what lots have said[^1]...
 
-- *Homophily and Contagion Are Generically Confounded in Observational Social Network Studies* [@shaliziHomophilyContagionAre2011]
-- *The “unfriending” problem: The consequences of homophily in friendship retention for causal estimates of social influence* [@noelUnfriendingProblemConsequences2011]
-- *Is obesity contagious? Social networks vs. environmental factors in the obesity epidemic* [@cohen-coleObesityContagiousSocial2008]
-- *The spread of obesity in a large social network over 32 years* [@merckenDynamicsAdolescentFriendship2010][^2]
-- ... and a reply: Christakis & Fowler [-@christakisSocialContagionTheory2013]
+- *Homophily and Contagion Are Generically Confounded in Observational Social Network Studies* [@shalizi_homophily_2011]
+- *The “unfriending” problem: The consequences of homophily in friendship retention for causal estimates of social influence* [@noel_unfriending_2011]
+- *Is obesity contagious? Social networks vs. environmental factors in the obesity epidemic* [@cohen-cole_is_2008]
+- *The spread of obesity in a large social network over 32 years* [@mercken_dynamics_2010][^2]
+- ... and a reply: Christakis & Fowler [-@christakis_social_2013]
 
 [^1]: See <https://statmodeling.stat.columbia.edu/2011/06/10/christakis-fowl/> for some summary
 [^2]: Full disclosure: one of my examiners was a co-author on one of these papers...
