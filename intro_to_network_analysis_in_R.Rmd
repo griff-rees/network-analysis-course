@@ -2,12 +2,11 @@
 title: "Introduction to (Social) Network Analysis in R"
 author: "Dr Griffith Rees"
 date: "08/04/2020"
-bibliography: course.bib
+bibliography: references.bib
 output:
   html_document:
     toc: true
     number_sections: true
-    # toc_depth: 2 (defaults to 3)
     toc_float: true
     includes:
       before_body: doc_prefix.html
@@ -22,27 +21,40 @@ if (!require(igraph)) {
 }
 ```
 
-# Network Data
+# (Social) Network Data
 
-Today we're going to demonstrate one way of loading network data, visualising it and how the network structure can help answer research questions.
+Today we're going to demonstrate simple ways of loading network data, visualisation, analysing structure, and showing how this can help answer research questions. 
+
+First question (a poll): are you only interested in **SOCIAL** networks like twitter [@murthySociologicalUnderstandingSocial2012] or could other types of networks be of interest [@teroRulesBiologicallyInspired2010]?
+
+<iframe width="560" height="315" src="http://www.youtube.com/embed/GwKuFREOgmo?rel=0" frameborder="0" allowfullscreen></iframe>
 
 ## What is a Network?
 
-A network is a way of representing how things are connected (or not). They can be social (who tweets to who), economic (which company employs which people), engineering (which parts were used in each product) etc. The representing of these connetions is a network--also call a [graph](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)) in mathematics, (confusing eh?)--and it's a tool, often applied to help quantiatively (and sometimes qualitatively) answer research questions. 
+A network is a way of representing how things are connected (or not). They can be social (who tweets to who), economic (which companies employ which people), engineering (which parts were used in each product) etc. The representing of these connetions is a network--also call a [graph](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)) in mathematics, (confusing eh?)--and in the social sciences it's a tool, often applied to help quantiatively (and sometimes qualitatively) answer research questions [@heathChasingShadowsDefining2009]. 
 
-## Installing R and iGraph
+## Installing `R` and `igraph`
 
-We're going to focus on the iGraph R package for today. There are [*many* other options](#na-packages): 
+We're going to focus on the `igraph` `R` package today. There are [*many* other options](#na-packages) but `igraph` is a fairly comprehensive package for getting started. If you're looking to go beyond what we cover today, I recommend looking through the `igraph` documentation for your particular interests before trying the other packages, and feel free to email me [griffith.rees@sheffield.ac.uk](mailto:griffith.rees@sheffield.ac.uk) if you've got questions. Please ask *detailed* questions, demonstrating what you've trying to do and what you've tried so far so I can efficiently reply.
 
-`igraph` is a fairly comprehensive package for getting started. I recommend looking through the `igraph` documentation for your particular interests before trying the other packages, and feel free to email me [griffith.rees@sheffield.ac.uk](mailto:griffith.rees@sheffield.ac.uk)
+<!--Survey: Who's used R before?-->
 
-<!--Survey: who's installed R-->
+<!--Survey: Who has a working R install?-->
 
-Let's just make sure that works for everyone. For those that have got it installed and running feel free to continue further down this handout to play around with the data.
+<!--Survey: Who has a working igraph install? Let's just make sure that works for everyone.-->
 
-Please go to <https://rstudio.com/products/rstudio/download/#download>
+For those that have got `igraph` installed feel free to continue further down this handout to play around with the data.
 
-It should fit the operating system your using (Windows, Linux or Mac) and download `RStudio`. If you could fill in the survey when that's done that'd be great
+Everyone else: please download `RStudio` from <https://rstudio.com/products/rstudio/download/#download>.
+
+It should fit your operating system automatically (Windows, Linux or Mac). 
+
+<aside>
+If you're not seeing an option (older versions of Windows or macOS, or unusual Linux) message me. Even if you're in a broader *nix category there are [options...](https://www.freshports.org/devel/RStudio/)
+</aside>
+
+<!--Survey: Finished installing R-->
+Please fill in the survey when you're done or post messages if you're having issues.
 
 Now let's install <https://igraph.org/r/>
 
@@ -57,6 +69,8 @@ library(igraph)
 ```
 
 <!--Survey of people having completed this.-->
+
+## Initial Demonstration of `igraph`
 
 
 # Networks (aka *graphs*)
@@ -121,17 +135,17 @@ $$A \ue B;B \ue C; C \ue A$$
 
 * A way of representing a system (social, economic, digital, biological etc.)
 * Can help explore and model
-    + Properties [@wasserman_social_1994]
-    + Visualisations [@kerren_multivariate_2014]
-    + Dynamics [@saavedra_asymmetric_2008]
-    + Simulations [@bearman_chains_2004]
+    + Properties [@wassermanSocialNetworkAnalysis1994]
+    + Visualisations [@kerrenMultivariateNetworkVisualization2014]
+    + Dynamics [@saavedraAsymmetricDisassemblyRobustness2008]
+    + Simulations [@bearmanChainsAffectionStructure2004]
     
 ## Risks
 
 * Complexity and size of data
-* Sampling issues: **not law of large numbers** [@browne_snowball_2005]
-* Pleathora of options [@butts_revisiting_2009]
-* Causal claims [@vanderweele_social_2013]
+* Sampling issues: **not law of large numbers** [@browneSnowballSamplingUsing2005]
+* Pleathora of options
+* Causal claims [@vanderweeleSocialNetworksCausal2013]
     
 # Nodes
 
@@ -161,7 +175,7 @@ E(g1)$color <- c("blue", "red", "blue", "blue", "blue")
 plot(g1, vertex.size=100,
      vertex.label.cex=5,
      edge.width=edge.scale,
-     edge.arrow.size=arrow.scale,
+     edge.arrow.size=arrow.scale
      )
 ```
 
@@ -176,13 +190,13 @@ plot(g1, vertex.size=100,
 
 ## That's what lots have said[^1]...
 
-- *Homophily and Contagion Are Generically Confounded in Observational Social Network Studies* [@shalizi_homophily_2011]
-- *The “unfriending” problem: The consequences of homophily in friendship retention for causal estimates of social influence* [@noel_unfriending_2011]
-- *Is obesity contagious? Social networks vs. environmental factors in the obesity epidemic* [@cohen-cole_is_2008]
-- *The spread of obesity in a large social network over 32 years* [@mercken_dynamics_2010][^2]
-- ... and a reply: Christakis & Fowler [-@christakis_social_2013]
+- *Homophily and Contagion Are Generically Confounded in Observational Social Network Studies* [@shaliziHomophilyContagionAre2011]
+- *The “unfriending” problem: The consequences of homophily in friendship retention for causal estimates of social influence* [@noelUnfriendingProblemConsequences2011]
+- *Is obesity contagious? Social networks vs. environmental factors in the obesity epidemic* [@cohen-coleObesityContagiousSocial2008]
+- *The spread of obesity in a large social network over 32 years* [@merckenDynamicsAdolescentFriendship2010][^2]
+- ... and a reply: Christakis & Fowler [-@christakisSocialContagionTheory2013]
 
-[^1]: See <https://statmodeling.stat.columbia.edu/2011/06/10/christakis-fowl/> for some summary
+[^1]: See <https://statmodeling.stat.columbia.edu/2011/06/10/christakis-fowl/> for a summary
 [^2]: Full disclosure: one of my examiners was a co-author on one of these papers...
 
 # Types of Nodes 
