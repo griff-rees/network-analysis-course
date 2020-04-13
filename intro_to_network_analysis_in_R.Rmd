@@ -2,11 +2,11 @@
 title: "Introduction to (Social) Network Analysis in R"
 author: "Dr Griffith Rees"
 date: "08/04/2020"
-# output: html_document
 bibliography: course.bib
 output:
   html_document:
     toc: true
+    number_sections: true
     # toc_depth: 2 (defaults to 3)
     toc_float: true
     includes:
@@ -14,7 +14,7 @@ output:
 link-citations: true
 ---
 
-```{r setup, include = FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
 if (!require(igraph)) {
@@ -28,47 +28,35 @@ Today we're going to demonstrate one way of loading network data, visualising it
 
 ## What is a Network?
 
-A network is a way of representing how things are connected (or not). They can be social (who tweets to who), economic (which company employs which people), engineering (which parts were used in each product) etc. The representing of these connetions is a network--also call a [graph](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics) in mathematics, (confusing eh?)--and it's a tool, often applied to help quantiatively (and sometimes qualitatively) answer research questions. 
+A network is a way of representing how things are connected (or not). They can be social (who tweets to who), economic (which company employs which people), engineering (which parts were used in each product) etc. The representing of these connetions is a network--also call a [graph](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)) in mathematics, (confusing eh?)--and it's a tool, often applied to help quantiatively (and sometimes qualitatively) answer research questions. 
 
 ## Installing R and iGraph
 
-We're going to focus on the iGraph R package for today. There are *many* other options: 
+We're going to focus on the iGraph R package for today. There are [*many* other options](#na-packages): 
 
-* R
-    + [iGraph](https://igraph.org/r/) built on C++ library, easier to get started and pre-dates ggplot so provides it's own visualisation options
-    + [statnet](http://statnet.org/) focused particularly on exponential random graphs (ERG) methods, maintained by [Prof Carter T. Butts](https://scholar.google.co.uk/citations?user=-VGAs1cAAAAJ&hl=en)
-    + [ggraph](https://ggraph.data-imaginist.com/) network visualisation in a way similar to [ggplot](https://ggplot2.tidyverse.org/reference/ggplot.html), maintained by [Thomas D Pedersen](https://www.data-imaginist.com/)
-    + [Rsiena](https://www.stats.ox.ac.uk/~snijders/siena/) Actor-oriented logitudinal models (ERG), created by [Tom Snijders](https://cran.r-project.org/web/packages/RSiena/index.html)
-* Python (my language of choice)
-    + [networkx](https://networkx.github.io/) very old, not very fast but very flexible (my package of choice for ideas)
-    + [igraph](https://igraph.org/python/) Effectively the same as the R package (both use the same underlying C++ library)
-    + [graph-tool](https://graph-tool.skewed.de/) Much newer, very speed efficient (C++ underneath)
-* Windows
-    + [UCINET](https://sites.google.com/site/ucinetsoftware/home) windows, developed and maintaied by 
+`igraph` is a fairly comprehensive package for getting started. I recommend looking through the `igraph` documentation for your particular interests before trying the other packages, and feel free to email me [griffith.rees@sheffield.ac.uk](mailto:griffith.rees@sheffield.ac.uk)
 
-but this is a fairly comprehensive one for getting started. I recommend looking through the iGraph documentation for your particular interests before trying the other packages, and feel free to email me with questions (helpful if you can be specific what you're trying to achieve).
+<!--Survey: who's installed R-->
 
-Survey: who's installed R
-
-Cool thanks let's just make sure that works for everyone. For those that have got it installed and running feel free to continue further down this handout to play around with the data.
+Let's just make sure that works for everyone. For those that have got it installed and running feel free to continue further down this handout to play around with the data.
 
 Please go to <https://rstudio.com/products/rstudio/download/#download>
 
-It should fit the operating system your using (Windows, Linux or Mac) and download RStudio. If you could fill in the survey when that's done that'd be great
+It should fit the operating system your using (Windows, Linux or Mac) and download `RStudio`. If you could fill in the survey when that's done that'd be great
 
 Now let's install <https://igraph.org/r/>
 
-```{r, eval = FALSE}
+```{r, eval=FALSE}
 install.packages("igraph")
 ```
 
-and then load it in your R console.
+and then load it in your `R` console.
 
-```{r, include = FALSE}
+```{r, include=FALSE}
 library(igraph)
 ```
 
-Survey of people having completed this.
+<!--Survey of people having completed this.-->
 
 
 # Networks (aka *graphs*)
@@ -197,11 +185,19 @@ plot(g1, vertex.size=100,
 [^1]: See <https://statmodeling.stat.columbia.edu/2011/06/10/christakis-fowl/> for some summary
 [^2]: Full disclosure: one of my examiners was a co-author on one of these papers...
 
+# Types of Nodes 
+
+Two types of Nodes (aka Bimodal or Bipartite Networks)
+
+So far we've looked at nodes which vary in attributes (like name) but not in terms of types. A lot of work has been done on networks with 
+
+## How to enforce different types of nodes
+
+
 # What else?
 
 ## There's lots
 
-- Bipartite networks (2 types of nodes)
 - Negative ties (few studies but a recent [*Social Networks* special issue](https://www.sciencedirect.com/journal/social-networks/vol/60))
 - [Erdős–Bacon number](https://en.wikipedia.org/wiki/Erd%C5%91s%E2%80%93Bacon_number)
 
@@ -216,5 +212,20 @@ plot(g1, vertex.size=100,
 
 <!--## Another network time series...
 ![Network dynamics of creativity](collab_canvas.mov){ width=60% } -->
+# Appendices
+
+## Network Analysis Packages {#na-packages}
+
+* R
+    + [iGraph](https://igraph.org/r/) built on a C++ library, easier to get started and pre-dates ggplot so provides it's own visualisation options
+    + [statnet](http://statnet.org/) focused particularly on [exponential random graphs (ERG) models](https://en.wikipedia.org/wiki/Exponential_random_graph_models), maintained by [Prof Carter T. Butts](https://scholar.google.co.uk/citations?user=-VGAs1cAAAAJ&hl=en)
+    + [ggraph](https://ggraph.data-imaginist.com/) network visualisation in a way similar to [ggplot](https://ggplot2.tidyverse.org/reference/ggplot.html), maintained by [Thomas D Pedersen](https://www.data-imaginist.com/)
+    + [Rsiena](https://www.stats.ox.ac.uk/~snijders/siena/) Actor-oriented logitudinal models (ERG), created by [Tom Snijders](https://cran.r-project.org/web/packages/RSiena/index.html)
+* Python (my language of choice)
+    + [networkx](https://networkx.github.io/) very old, not very fast but very flexible (my package of choice for ideas)
+    + [igraph](https://igraph.org/python/) Effectively the same as the R package (both use the same underlying C++ library)
+    + [graph-tool](https://graph-tool.skewed.de/) Much newer, very speed efficient (also C++ underneath)
+* Windows
+    + [UCINET](https://sites.google.com/site/ucinetsoftware/home) windows, developed and maintaied by (people including head of group at Manchester)
 
 ## References
