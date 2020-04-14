@@ -1,16 +1,24 @@
 ---
 title: "Introduction to (Social) Network Analysis in R"
 author: "Dr Griffith Rees"
-date: "08/04/2020"
+date: "15/04/2020"
 bibliography: references.bib
+link-citations: true
 output:
   html_document:
     toc: true
     number_sections: true
     toc_float: true
     includes:
-      before_body: doc_prefix.html
-link-citations: true
+      before_body: doc_prefix.tex
+  # pdf_document:
+  #   toc: true
+  #   number_sections: true
+  #   includes:
+  #     before_body: doc_prefix.tex
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding,
+  output_dir = "output", output_format = "all") })
 ---
 
 ```{r setup, include=FALSE}
@@ -25,7 +33,7 @@ if (!require(igraph)) {
 
 Today we're going to demonstrate simple ways of loading network data, visualisation, analysing structure, and showing how this can help answer research questions. 
 
-First question (a poll): are you only interested in **social** networks like twitter [@murthySociologicalUnderstandingSocial2012] or could other types of networks be of interest [@teroRulesBiologicallyInspired2010]?
+So a recurring point I'll make today is that there are lots of systems that can be represented as a network. Perhaps you're interested in **social** networks like twitter [@murthySociologicalUnderstandingSocial2012], but there are other types of networks that could be of interest [@teroRulesBiologicallyInspired2010]?
 
 <iframe width="560" height="315" src="http://www.youtube.com/embed/GwKuFREOgmo?rel=0" frameborder="0" allowfullscreen></iframe>
 
@@ -47,7 +55,7 @@ For those that have got `igraph` installed feel free to continue further down th
 
 Everyone else: please download `RStudio` from <https://rstudio.com/products/rstudio/download/#download>.
 
-It should fit your operating system automatically (Windows, Linux or Mac). If you're not seeing an option (possibly old versions of Windows, macOS, or unusual Linux distributions) message me. ^[Even if you're in a broader *nix category there are [options...](https://www.freshports.org/devel/RStudio/)]
+It should fit your operating system automatically (Windows, Linux or Mac). If you're not seeing an option (possibly old versions of Windows, macOS, or unusual Linux distributions) message me. <!--^[Even if you're in a broader *nix category there are [options...](https://www.freshports.org/devel/RStudio/)]-->
 
 <!--Survey: Finished installing R-->
 Please fill in the survey when you're done or post messages if you're having issues.
@@ -70,7 +78,7 @@ library(igraph)
 
 We're going to jump into visualisation with `igraph` as a test of the install and a demonstration of visualisation options. Then we'll break it down into what's going on underneath but again, feel free to mess around with what's loaded as we continue on.
 
-We begin by loading node and edge data from [Dr Evelina Gabašová's](Dr Evelina Gabašová) excellent dataset on [which characters appeared together in scenes of star wars films](http://evelinag.com/blog/2015/12-15-star-wars-social-network/). Shamlessly borrowing from an NYU [short course](https://github.com/pablobarbera/data-science-workshop/tree/master/sna) created by [Dr Pablo Barberá's](http://pablobarbera.com/) we focus on Episode IV - *A New Hope*.
+We begin by loading node and edge data from [Dr Evelina Gabašová's](Dr Evelina Gabašová's) excellent dataset on [which characters appeared together in scenes of star wars films](http://evelinag.com/blog/2015/12-15-star-wars-social-network/). Shamlessly borrowing from an NYU [short course](https://github.com/pablobarbera/data-science-workshop/tree/master/sna) created by [Dr Pablo Barberá's](http://pablobarbera.com/) we focus on Episode IV - *A New Hope*.
 
 Have a look in the data folder and make sure there are 4 csv files, including `star-wars-network-edges.csv`  and `star-wars-network-nodes.csv` The originals can be found at <https://github.com/pablobarbera/data-science-workshop/tree/master/sna/data>. 
 
@@ -80,16 +88,31 @@ Have a look in the data folder and make sure there are 4 csv files, including `s
 * <https://github.com/pablobarbera/data-science-workshop/raw/master/sna/data/star-wars-network-nodes.csv>
 -->
 
-### Load Node/Edge CSVs
+### Load Node/Edge CSVs {#load-csvs}
 
-In this dataset, nodes are characters in the film and edges are the number of scenes they appear in together.
+<!--In this dataset, nodes are characters in the film and edges are the number of scenes they appear in together.-->
 
+First load the csv of nodes and have it print out the list of records.
 ```{r}
 nodes <- read.csv("data/star-wars-network-nodes.csv")
 nodes
+```
+You should see two columns: list of character names from the film alongside a list of id numbers. We'll look at this in detail later.
+
+* name (character names)
+* id (integer)
+
+
+Next load a list of edges:
+```{r}
 edges <- read.csv("data/star-wars-network-edges.csv")
 edges
 ```
+Again we'll go into this in further detail but for now it's just good to know everyone's got these up and working. You should see three columns:
+
+* source (a character's name)
+* target (another character's name)
+* weight (an integer for the nuber of scenes they share)
 
 There are many ways of storing network information, and we'll look at other options later. For now: note the nodes are the names of characters and the edges are pairs of characters followed by the number of scenes they share in the film.
 
@@ -99,7 +122,7 @@ There are many ways of storing network information, and we'll look at other opti
 g <- graph_from_data_frame(d=edges, vertices=nodes, directed=FALSE)
 ```
 
-We'll look at how this works in detail in the next section, but note here that we load the `data frame` of edges into the `d` parameter and the `data frame` of nodes (in this characters) as vertices (another name for nodes in network analysis). We're setting `directed=FALSE` for simplicity (more on this later).
+We'll look at how this works in detail in the next section, but note here that we load the data frame of edges into the `d` parameter and the data frame of nodes (in this characters) as vertices (another name for nodes in network analysis). We're setting `directed=FALSE` for simplicity (more on this later).
 
 ### Visualising a network
 
@@ -109,36 +132,69 @@ There are lots of ways to visualise networks. In part as a test of setup, we're 
 plot(g)
 ```
 
-Mostly illegible eh? You're will have a different layout but as long as it looks similar we should be ready to go.
+Mostly illegible eh? You're plot will have a different layout but as long as it looks similar we should be ready to go.
 
 <!--Survey of this working for people.-->
+
+Even with this rough layout we can, however, answer a research question:
+
+Which character shares the *least* number of scenes with any other?
+
+<!--Survey of character who shares the least number of scenes between R2-D2, GREEDO, JABBA, Leia and GOLD FIVE.-->
 
 Sneak preview of what's to come:
 
 ```{r, fig.width=12, fig.height=7, echo=FALSE}
-# Prepare colour attribute
+# Prepare colour attributes
 h <- g
 dark_side <- c("DARTH VADER", "MOTTI", "TARKIN")
 light_side <- c("R2-D2", "CHEWBACCA", "C-3PO", "LUKE", "CAMIE", "BIGGS",
                 "LEIA", "BERU", "OWEN", "OBI-WAN", "HAN", "DODONNA",
                 "GOLD LEADER", "WEDGE", "RED LEADER", "RED TEN", "GOLD FIVE")
 other <- c("GREEDO", "JABBA")
-# node we'll create a new color variable as a node property
-V(h)$colour <- NA
-V(h)$colour[V(h)$name %in% dark_side] <- "red"
-V(h)$colour[V(h)$name %in% light_side] <- "gold"
-V(h)$colour[V(h)$name %in% other] <- "grey20"
+
+# Add the color attribute to the network nodes
+V(h)$color <- NA
+V(h)$color[V(h)$name %in% dark_side] <- "red"
+V(h)$color[V(h)$name %in% light_side] <- "gold"
+V(h)$color[V(h)$name %in% other] <- "green"
 
 plot(h, layout=layout_with_fr, main="Force-directed")
 legend(x=.75, y=.75, legend=c("Dark side", "Light side", "Other"), 
-       pch=21, pt.bg=c("red", "gold", "grey20"), pt.cex=2, bty="n")
+       pch=21, pt.bg=c("red", "gold", "green"), pt.cex=2, bty="n")
 ```
 
+# Networks (aka Graphs)
 
-# Networks (aka *graphs*)
+Now that we've got the basic package and a dataset up let's dive into the details of what's going on here. The goal is to give you enough of a foundation on network analysis to see how it can help answer research questions. It's also work mentioned that in mathematics networks are often called graphs, and fit under the ubrella term [graph theory](https://en.wikipedia.org/wiki/Graph_theory) hence the package name `igraph`. I'll use the terms *graph* and *network* interchangeably, while a visualisation of a network I'll try to call a plot (apologies in advance if I call a visualisation a graph!).
 
-In this section we will be using a small network that indicates [interactions in the movie Star Wars Episode IV](http://evelinag.com/blog/2015/12-15-star-wars-social-network/). Available here: <https://github.com/pablobarbera/data-science-workshop>. Here, each node is a character and each edge indicates whether they appeared together in a scene of the movie. Edges here are thus _undirected_ and they also have weights attached, since they can appear in multiple scenes together.
+The basic components of networks/graphs are *nodes* and *edges*.
 
+## Nodes
+
+Each of the characters is a *node*, also know as a *vertex*. This is analogous to records in classic datasets like people or firms, which can include characteristics such as age or income. Nodes can have different characteristics too--usually called node attributes--and these can help in analysing and understanding the network.
+
+Let's take a deeper look at the data we used to create the plot above:
+
+```{r, eval=FALSE}
+nodes
+```
+
+As mentioned in a [previous section](#load-CSVs) there are two components of data for each node:
+
+* name (character names)
+* id (integer)
+
+To see how that shows up when loaded into a `igraph` network use the `V` (vertices, synonymous with nodes) function:
+
+```{r}
+V(g)
+```
+
+The `name` attribute is particularly helpful in
+
+
+So: 
 The first step is to read the list of edges and nodes in this network:
 
 ```{r}
