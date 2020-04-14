@@ -33,7 +33,7 @@ if (!require(igraph)) {
 
 Today we're going to demonstrate simple ways of loading network data, visualisation, analysing structure, and showing how this can help answer research questions. 
 
-So a recurring point I'll make today is that there are lots of systems that can be represented as a network. Perhaps you're interested in **social** networks like twitter [@murthySociologicalUnderstandingSocial2012], but there are other types of networks that could be of interest [@teroRulesBiologicallyInspired2010]?
+So a recurring point I'll make today is that there are lots of systems that can be represented as a network. Perhaps you're interested in **social** networks like twitter [@murthySociologicalUnderstandingSocial2012], but there are other types of networks that could be of interest [@teroRulesBiologicallyInspired2010]:
 
 <iframe width="560" height="315" src="http://www.youtube.com/embed/GwKuFREOgmo?rel=0" frameborder="0" allowfullscreen></iframe>
 
