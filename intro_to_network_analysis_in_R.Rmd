@@ -25,7 +25,7 @@ knit: (function(inputFile, encoding) {
 knitr::opts_chunk$set(echo = TRUE)
 
 if (!require(igraph)) {
-    install.packages("igraph")
+    install.packages("igraph", repos="http://cran.uk.r-project.org")
 }
 ```
 
