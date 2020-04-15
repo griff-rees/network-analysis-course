@@ -294,17 +294,27 @@ This should illustrate two things:
 * You can add lots of attributes to nodes in a way similar to adding a column of data to a normal `data.frame` like the `nodes` variable
 * Some attributes can have a special role in particular network packages, such as `color` in `igraph`
 
-Similarly: you can visualise specific sections of a graph, and that can be helpful in providing better detail/easier to read but it's often worth presenting it alongside the larger network it's subsampled from
+Similarly: you can visualise specific sections of a graph, and that can be helpful in providing better detail/easier to read. Returning to the `dark_side_graph` subsample 
 
 ```{r}
 plot(dark_side_graph)
 ```
 
+This is a lot easier to read and can, as a way of zooming in give us a clearer picture of some aspects of the structure. This becomes more crucial with much larger network datasets. It's already difficult to read the names of characters in these plots. Let's compare it with the rest of other side of the force:
+
+```{r}
+light_side_graph <- induced_subgraph(g, light_side) # Using the light_side variable
+plot(light_side_graph)
+```
+without the rest of the network around it but by itself and without the wider context it can be misleading. 
+we can but it's often worth presenting it alongside the larger network it's subsampled from
+
 Like many other quantitative methodologies there are many other types of attributes that can apply to nodes such as
 
 * Numerical (age, body mass index, income)
-* Categorical (ethnicity, class, nationality, sector, side of the force (or nutral))
-* Geographic (coordinates)
+* Boolean (yes/no, sex, citizenship <!-- mention I wasn't born with British citizenship-->, neutral)
+* Categorical (ethnicity, class, nationality, sector, color as combination of side of the force or neutral)
+* Spatial (geographic position, location in hospitals)
 
 We'll return to the applicablity of these later but generally: most variables that can be used in classic statistical analysis can be applied in network analysis. It might be hard... but that data can generally be useful. 
 
@@ -313,10 +323,62 @@ To close: *be wary of sampling issues in network analysis!*
 
 ## Edges
 
-Edges, also called vertices, the connections in networks/graphs. They can be friendship, kinship, contracts, following, liking, debt, etc. Our conversation right now is via a digital network, but if we were in the lab we'd originally planned to use there it would still be face to face, just with a lot more physical movement and scribbling on a white board.
+Edges, also called links and ties, are the connections in networks/graphs. They can be friendship, kinship, contracts, following, liking, debt, etc. Our conversation right now is via a digital network, but if we were in the lab we'd originally planned to use there would be conversation face to face, just with a lot more physical movement and scribbling on a white board.
 
+### Edge Data
 
+To get started let's look at the second data file we loaded in the beginning
 
+```{r}
+head(edges)
+```
+
+The `head` and `tail` functions are very handy ways to peak at datasets, especially very large ones. They return 6 records from the start or end of `data.frame` respectively.
+
+`edges` has three variables, the first two of which specify edges and the last is an attribute. We'll take these in turn
+
+#### Directed or Undirected
+
+Edges can be categorised as directed or undericted. So far, we've been working with an undirected graph, and that's why we include the `directed=FALSE` parameter in creating `g`: `g <- graph_from_data_frame(d=edges, vertices=nodes, directed=FALSE)`.
+
+But it's no accident that the first two column names of the edges file are `source` and `target`. Different network packages follow different conventions (see the [appendix](#na-packages) for other packages) but directional information can be very important in networks. Someone can like someone else's tweet, just as a company can offer a contract to another or a paper can cite another paper. It's important in these cases to specify where the direction of the connection comes from, and some of the first social network analysis research (then called sociograms [@festingerWhoShallSurvive1954]) use directional infromation:
+
+<center>
+
+![Sociogram](img/sociogram.png)
+
+</center>
+
+In this study, people were individually asked to name friends at school. This diagram of friendship in a 4th grade (US term for UK year 5) class in the 1930s is a famous demonstration of a case where friendship is highly correlated with gender. If you look closesly (try `ctrl/cmd +` to zoom in) you'll see arrows pointing at circles such as from `EL` to `SH` while in a few, like the connection between `BR` and `MC` no arrows.
+
+This means that `EL` named `SH` as a friend but `SH` didn't reciprocate (also name `EL` as a friend), while `BR` and `MC` both named each other as friends.
+
+Here's a newer digram of the same network which is a bit easier to read:
+
+<center>
+
+![Directed Network](img/sociogram_network.png)
+
+</center>
+
+With the additional information of the shapes in the first digram which map to colours in the second, this is a way of demonstrating the separation of social groups by gender, but possibly how those groups are very *weakly* tied together. Weakness in as much as only one connection is named across gender and it is not reciprocated. There are ways of quantifying how different groups are connected in networks which is outside the scope of the session today, but there is lots of research on this in both social network analysis and many other types of network analysis [@leskovecEmpiricalComparisonAlgorithms2010]. 
+
+To summarise: undirected networks have two basic states between nodes
+
+*Undirected Networks*
+
+* Connected (a is linked to b) formalised as $$a \ue b$$
+* Unconnected (a is not linked to b) formalised as $$a \ne b$$
+
+while directed networks have 3 basic states between nodes
+
+*Directed Networks*
+
+* Unidirectional (connection from a to b) formalised as $$a \de b$$
+* Bidirectional (connections from a to b and b to a) formalised as $$ a \leftrightarrow b $$
+* Unconnected (a is not linked to b) formalised as above $$a \ne b$$
+
+# Old Presentation Structure
 
 So: 
 The first step is to read the list of edges and nodes in this network:
