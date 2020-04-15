@@ -55,7 +55,7 @@ For those that have got `igraph` installed feel free to continue further down th
 
 Everyone else: please download `RStudio` from <https://rstudio.com/products/rstudio/download/#download>.
 
-It should fit your operating system automatically (Windows, Linux or Mac). If you're not seeing an option (possibly old versions of Windows, macOS, or unusual Linux distributions) message me. <!--^[Even if you're in a broader *nix category there are [options...](https://www.freshports.org/devel/RStudio/)]-->
+It should fit your operating system automatically (Windows, Linux or Mac). If you're not seeing an option (possibly old versions of Windows, macOS, or unusual Linux distributions) message me. ^[Even if you're in a broader *nix category there are [options...](https://www.freshports.org/devel/RStudio/)]
 
 <!--Survey: Finished installing R-->
 Please fill in the survey when you're done or post messages if you're having issues.
@@ -144,8 +144,12 @@ Even with this rough layout we can, however, answer a research question:
 
 Which character shares the *least* number of scenes with any other?
 
-![A: R2-D2](img/r2-d2.jpg){width=20px} ![B: Gold Five](img/gold_five.jpg){width=30px}
+<center>
+
+![A: R2-D2](img/r2-d2.jpg){width=15%} ![B: Gold Five](img/gold_five.jpg){width=15%} ![C: Leia](img/princess_leia.jpeg){width=15%} ![D: Jabba](img/jabba.png){width=15%} ![E: Greedo](img/greedo.jpg){width=15%}
 <!--Survey of character who shares the least number of scenes between R2-D2, GREEDO, JABBA, Leia and GOLD FIVE.-->
+
+</center>
 
 Sneak preview of what's to come:
 
@@ -353,7 +357,7 @@ In this study, people were individually asked to name friends at school. This di
 
 This means that `EL` named `SH` as a friend but `SH` didn't reciprocate (also name `EL` as a friend), while `BR` and `MC` both named each other as friends.
 
-Here's a newer digram of the same network which is a bit easier to read:
+Here's a newer digram of the same network which is a bit easier to read from <http://www.martingrandjean.ch/social-network-analysis-visualization-morenos-sociograms-revisited/>:
 
 <center>
 
@@ -365,154 +369,140 @@ With the additional information of the shapes in the first digram which map to c
 
 To summarise: undirected networks have two basic states between nodes
 
-*Undirected Networks*
+**Undirected Networks**
 
 * Connected (a is linked to b) formalised as $$a \ue b$$
 * Unconnected (a is not linked to b) formalised as $$a \ne b$$
 
 while directed networks have 3 basic states between nodes
 
-*Directed Networks*
+**Directed Networks**
 
 * Unidirectional (connection from a to b) formalised as $$a \de b$$
 * Bidirectional (connections from a to b and b to a) formalised as $$ a \leftrightarrow b $$
 * Unconnected (a is not linked to b) formalised as above $$a \ne b$$
 
-# Old Presentation Structure
-
-So: 
-The first step is to read the list of edges and nodes in this network:
+And returning to the way we constructed `g` originally:
+g
+```{r}
+g <- graph_from_data_frame(d=edges, vertices=nodes, directed=FALSE)
+```
+we can also construct that network as directed by leaving out `directed=FALSE` because the default value is `directed=TRUE` 
+```{r}
+d <- graph_from_data_frame(d=edges, vertices=nodes, directed=TRUE)
+plot(d)
+```
 
 ```{r}
-edges <- read.csv("data/star-wars-network-edges.csv")
-head(edges)
-nodes <- read.csv("data/star-wars-network-nodes.csv")
-head(nodes)
+d <- graph_from_data_frame(d=edges, vertices=nodes)
+plot(d)
 ```
-For example, we learn that C-3PO and R2-D2 appeared in 17 scenes together.
 
-How do we convert these two datasets into a network object in R? There are multiple packages to work with networks, but the most popular is `igraph` because it's very flexible and easy to do, and in my experience it's much faster and scales well to very large networks. Other packages that you may want to explore are `sna` and `networks`. We'll see an example later in this class, because some network modeling packages are not compatible with `igraph`.
+#### Edge Attributes
 
-Now, how do we create the igraph object? We can use the `graph_from_data_frame` function, which takes two arguments: `d`, the `data.frame` with the edge list in the first two columns; and `vertices`, a `data.frame` with node data with the node label in the first column. (Note that igraph calls the nodes `vertices`, but it's exactly the same thing.)
+Just like nodes, edges can have attributes. The directionality in the previous section is an example of information associated with a tie, and the presence or absence of one. One of the most common examples of tie attributes is included in the star wars dataset, and is usually described as a *weighted tie*. This is the third column in `edges` labeled `weight`
 
-```{r, message=FALSE}
-g <- graph_from_data_frame(d=edges, vertices=nodes, directed=FALSE)
+```{r}
+head(edges)
+```
+
+This is the number of scenes that both characters share in the film. If combined with the `source` and `target` information then it's a means of weighting directed ties/edges.
+
+With all this in mind, we can look at the original star wars network for a glimpse of what's included in the whole structure:
+
+```{r}
 g
 ```
 
-What does it mean?
+It's a bit technical but what it's showing is a summary of the network object:
 
 * `U` means undirected  
-* `N` means named graph  
-* `W` means weighted graph  
+* `N` means named graph (hence the names attribute)
+* `W` means weighted graph  (hence the weight attribute)
 * `22` is the number of nodes  
 * `60` is the number of edges  
 * `name (v/c)` means _name_ is a node attribute and it's a character  
 * `weight (e/n)` means _weight_ is an edge attribute and it's numeric  
 
-This is how you access specific elements within the igraph object:
+The rows are indicating connections between nodes so record `[1]` is between `R2-D2` and `C-3PO`.
+
+Similar to the vertices `V()` function there is an edge function `E()` which prints the connections section from the summary of `g` just described.
 
 ```{r}
-V(g) # nodes
-V(g)$name # names of each node
-vertex_attr(g) # all attributes of the nodes
-E(g) # edges
-E(g)$weight # weights for each edge
-edge_attr(g) # all attributes of the edges
-g[] # adjacency matrix
-g[1,] # first row of adjacency matrix
+E(g)
 ```
 
+And again in similarity to nodes, edge attributes are accessed by `$`:
 
-## Basic undirected network
-```{r undirected, echo=FALSE, message=FALSE, warning=FALSE, }
-g1 <- graph( edges=c("A","B", "B","C", "C", "A"), directed=FALSE ) 
-plot(g1, vertex.size=100, vertex.label.cex=5, edge.width=5)
+```{r}
+E(g)$weight
 ```
 
-- A, B and C are *nodes* or *vertices* (people, companies, countries etc.)
-- Connections are often called *ties* or *edges* (friendship, communication, contracts, kinship etc.)
-- Undirected
-$$A \ue B;B \ue C; C \ue A$$
+and the list of attributes is printed by the `edge_attr` function
 
-## Advantages
-
-* A way of representing a system (social, economic, digital, biological etc.)
-* Can help explore and model
-    + Properties [@wassermanSocialNetworkAnalysis1994]
-    + Visualisations [@kerrenMultivariateNetworkVisualization2014]
-    + Dynamics [@saavedraAsymmetricDisassemblyRobustness2008]
-    + Simulations [@bearmanChainsAffectionStructure2004]
-    
-## Risks
-
-* Complexity and size of data
-* Sampling issues: **not law of large numbers** [@browneSnowballSamplingUsing2005]
-* Pleathora of options
-* Causal claims [@vanderweeleSocialNetworksCausal2013]
-    
-# Nodes
-
-## Category, Type & Attribute
-```{r types, echo=FALSE, message=FALSE, warning=FALSE, }
-V(g1)[0:1]$color <- "green"
-plot(g1, vertex.shape=c("circle", "square", "circle"), vertex.size=c(100, 100, 160), vertex.label.cex=5, edge.width=5)
+```{r}
+edge_attr(g)
 ```
 
-- Category or group (club membership, kinship etc.)
-- Type (employee, firm, region etc.)
-- Attribute (age, ethnicity, size etc.)
+I realise this is going very quickly but the point is to demonstrate how similar accessing edge attribution information is to accessing node attributes. 
 
-## Structure of Romantic and Sexual Relations
+With this demonstrated, we can now try adding another edge attribute. This is trickier than adding node attributes because there are so many, but building on the method we took before:
 
-<!--Could add bipartite here-->
-* <https://github.com/pablobarbera/data-science-workshop/raw/master/sna/data/congress-twitter-network-edges.csv>
-* <https://github.com/pablobarbera/data-science-workshop/raw/master/sna/data/congress-twitter-network-nodes.csv>
+```{r}
+E(g)$color <- "blue"
+E(g)$color[E(g)$weight >= 5] <- "red"
+```
+This is a very simple case where we're colouring edges based on the weight, once again using the standard colour names that come with `R`. We've set the colour criteria to be for edges of greater weight than five (of which there are very few).
 
-# Edges
+One again using the `edge_attr` function we can see what's been added:
 
-## Direction, Weight & Type
-```{r directed, echo=FALSE, message=FALSE, warning=FALSE, }
-edge.scale <- c(7, 28, 3, 3, 5) 
-arrow.scale <- edge.scale/1.2
-g1 <- graph( edges=c("A","B", "B","C", "C", "A", "A", "C", "B", "B"), 
-             directed=TRUE ) 
-E(g1)$color <- c("blue", "red", "blue", "blue", "blue")
-plot(g1, vertex.size=100,
-     vertex.label.cex=5,
-     edge.width=edge.scale,
-     edge.arrow.size=arrow.scale
-     )
+```{r}
+edge_attr(g)
 ```
 
-- Direction (transaction, contract, message sender vs reciever etc.)
-- Weight (amount of transaction, length of contract, frequency of message etc.)
-- Type (type of transaction, cateory, texts vs tweets etc.)
-- $A \de B; B \de C; C \leftrightarrow A; B \de B$
+And similar to node attributes, color has the extra significance of automatically being added to plots (though as this is few edges it might not show up obviously on your screen).
 
-## Too impressive to be true?
+```{f}
+plot(g)
+```
 
-<iframe width="560" height="315" src="http://www.youtube.com/embed/8aEtyRD1j5U?rel=0" frameborder="0" allowfullscreen></iframe>
+Hope it's clear on some screens. We've obviously got issues with positioning which is to come. We're very close to finishing the edge section. We've got one more part to cover then on to the details of visualisation.
 
-## That's what lots have said[^1]...
+But before we do, once again we can use this visualisation (and the weight attribute to answer a question): which pair of characters share the most scenes in star wars IV?
 
-- *Homophily and Contagion Are Generically Confounded in Observational Social Network Studies* [@shaliziHomophilyContagionAre2011]
-- *The “unfriending” problem: The consequences of homophily in friendship retention for causal estimates of social influence* [@noelUnfriendingProblemConsequences2011]
-- *Is obesity contagious? Social networks vs. environmental factors in the obesity epidemic* [@cohen-coleObesityContagiousSocial2008]
-- *The spread of obesity in a large social network over 32 years* [@merckenDynamicsAdolescentFriendship2010][^2]
-- ... and a reply: Christakis & Fowler [-@christakisSocialContagionTheory2013]
+#### Adjacency Matrix
 
-[^1]: See <https://statmodeling.stat.columbia.edu/2011/06/10/christakis-fowl/> for a summary
-[^2]: Full disclosure: one of my examiners was a co-author on one of these papers...
+So far the edges have all been via lists of pairs of node names, but other ways of representing edges is via a matrix, and that features a lot in other network packages. I'm just going to briefly show you that now
 
-# Types of Nodes 
+```{r}
+g[]
+```
 
-Two types of Nodes (aka Bimodal or Bipartite Networks)
+For those of you interested in the details, the matrix is symmetrical if undirected and potentially asymetrical if directed. Each row and column are lists of connections between one node and all the others (including itself, which is the diagonal down the middle). I'm going to leave that there for today but just to give you some idea of where that comes from and what that means if you see a package asking for an ajacency matrix.
 
-So far we've looked at nodes which vary in attributes (like name) but not in terms of types. A lot of work has been done on networks with 
+Notice: there aren't any cases of links to oneself (which wouldn't make sense in a film... except for maybe a sci-fi time travel one) but in other cases that can be clearer, such as emailing yourself (something I do all the time as reminders).
 
-## How to enforce different types of nodes
+## Visualisation
 
+Finally down to visualisation! We've obviously spent almost all this time on constructing the graph and understanding the data that composes it. But what's really annoying throughout (and generally a very hard problem, for which there are many packages) is a good arrangement of nodes. There's lots of work on this in general but to just get us up to the target we're going to dive into the `plot` function and the `layout` parameter
+
+```{r, fig.width=12, fig.height=7}
+par(mfrow=c(2, 3), mar=c(0,0,1,0))
+plot(g, layout=layout_randomly, main="Random")
+plot(g, layout=layout_in_circle, main="Circle")
+plot(g, layout=layout_as_star, main="Star")
+plot(g, layout=layout_as_tree, main="Tree")
+plot(g, layout=layout_on_grid, main="Grid")
+plot(g, layout=layout_with_fr, main="Force-directed")
+```
+
+These are some of the layout options to choose from. The `layout_with_fr` is a favorite of many, so that's what I used at the start. So to reproduce what I suggested:
+
+```{r}
+plot(g, layout=layout_with_fr)
+legend(x=.75, y=.75, legend=c("Dark side", "Light side", "Neutral"), 
+       pch=21, pt.bg=c("red", "gold", "green"), pt.cex=2, bty="n")
+```
 
 # What else?
 
