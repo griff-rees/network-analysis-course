@@ -74,19 +74,22 @@ library(igraph)
 
 <!--Survey of people having completed this.-->
 
-## Test `igraph` loading data
+## Test loading `igraph` data
 
 We're going to jump into visualisation with `igraph` as a test of the install and a demonstration of visualisation options. Then we'll break it down into what's going on underneath but again, feel free to mess around with what's loaded as we continue on.
 
 We begin by loading node and edge data from [Dr Evelina Gabašová's](Dr Evelina Gabašová's) excellent dataset on [which characters appeared together in scenes of star wars films](http://evelinag.com/blog/2015/12-15-star-wars-social-network/). Shamlessly borrowing from an NYU [short course](https://github.com/pablobarbera/data-science-workshop/tree/master/sna) created by [Dr Pablo Barberá's](http://pablobarbera.com/) we focus on Episode IV - *A New Hope*.
 
-Have a look in the data folder and make sure there are 4 csv files, including `star-wars-network-edges.csv`  and `star-wars-network-nodes.csv` The originals can be found at <https://github.com/pablobarbera/data-science-workshop/tree/master/sna/data>. 
+You can have a look at my github repository for this course: <https://github.com/griff-rees/network-analysis-course> and download the repository. That includes the code for this handout and the data we're playing around with today.
 
-<!--Please download these datafiles:
+Once you've downloaded unzipped and have a look in the data folder to make sure there are 4 csv files, including `star-wars-network-edges.csv`  and `star-wars-network-nodes.csv` The originals can be found at <https://github.com/pablobarbera/data-science-workshop/tree/master/sna/data>.
+
+<!--
+Please download these datafiles:
 
 * <https://github.com/pablobarbera/data-science-workshop/raw/master/sna/data/star-wars-network-edges.csv>
 * <https://github.com/pablobarbera/data-science-workshop/raw/master/sna/data/star-wars-network-nodes.csv>
--->
+  -->
 
 ### Load Node/Edge CSVs {#load-csvs}
 
@@ -108,6 +111,7 @@ Next load a list of edges:
 edges <- read.csv("data/star-wars-network-edges.csv")
 edges
 ```
+
 Again we'll go into this in further detail but for now it's just good to know everyone's got these up and working. You should see three columns:
 
 * source (a character's name)
@@ -140,6 +144,7 @@ Even with this rough layout we can, however, answer a research question:
 
 Which character shares the *least* number of scenes with any other?
 
+![A: R2-D2](img/r2-d2.jpg){width=20px} ![B: Gold Five](img/gold_five.jpg){width=30px}
 <!--Survey of character who shares the least number of scenes between R2-D2, GREEDO, JABBA, Leia and GOLD FIVE.-->
 
 Sneak preview of what's to come:
@@ -151,16 +156,16 @@ dark_side <- c("DARTH VADER", "MOTTI", "TARKIN")
 light_side <- c("R2-D2", "CHEWBACCA", "C-3PO", "LUKE", "CAMIE", "BIGGS",
                 "LEIA", "BERU", "OWEN", "OBI-WAN", "HAN", "DODONNA",
                 "GOLD LEADER", "WEDGE", "RED LEADER", "RED TEN", "GOLD FIVE")
-other <- c("GREEDO", "JABBA")
+neutral <- c("GREEDO", "JABBA")
 
 # Add the color attribute to the network nodes
 V(h)$color <- NA
 V(h)$color[V(h)$name %in% dark_side] <- "red"
 V(h)$color[V(h)$name %in% light_side] <- "gold"
-V(h)$color[V(h)$name %in% other] <- "green"
+V(h)$color[V(h)$name %in% neutral] <- "green"
 
 plot(h, layout=layout_with_fr, main="Force-directed")
-legend(x=.75, y=.75, legend=c("Dark side", "Light side", "Other"), 
+legend(x=.75, y=.75, legend=c("Dark side", "Light side", "Neutral"), 
        pch=21, pt.bg=c("red", "gold", "green"), pt.cex=2, bty="n")
 ```
 
@@ -180,18 +185,61 @@ Let's take a deeper look at the data we used to create the plot above:
 nodes
 ```
 
-As mentioned in a [previous section](#load-CSVs) there are two components of data for each node:
+As mentioned in a [previous section](#load-CSVs) there are two components of data for each of these nodes:
 
 * name (character names)
 * id (integer)
 
 To see how that shows up when loaded into a `igraph` network use the `V` (vertices, synonymous with nodes) function:
 
-```{r}
+```{r, eval=False}
 V(g)
 ```
 
-The `name` attribute is particularly helpful in
+The `name` attribute is particularly helpful in graph visualisation as it shows up automatically with `igraph` plots. If you've not used `R` before, here's a useful way to look at parts of data (usually columns in a table) using the `$`.
+
+```{r, eval=False}
+nodes$name
+V(g)$name
+```
+
+Let's add another attribute. Following the classic notion of the force in start wars we can add data indicating which side of the *force* characters are associated with (or othe if neighther). First we create vectors of names using the `c` (combine) function to get a vector of strings (names of nodes in this case).
+
+```{r}
+# Create 
+dark_side <- c("DARTH VADER", "MOTTI", "TARKIN")
+light_side <- c("R2-D2", "CHEWBACCA", "C-3PO", "LUKE", "CAMIE", "BIGGS",
+                "LEIA", "BERU", "OWEN", "OBI-WAN", "HAN", "DODONNA",
+                "GOLD LEADER", "WEDGE", "RED LEADER", "RED TEN", "GOLD FIVE")
+neutral <- c("GREEDO", "JABBA")
+```
+Now we can add colours to the `nodes` based on the vectors of names we just created. `R` has a set of [colour names that can be used in plots](http://www.guianaplants.stir.ac.uk/seminar/materials/colorPaletteCheatsheet.pdf), feel free to pick your own. By storing one of these colour names in the new `color` attribute, we can have that directly show up in the visualisation. Note the spelling of `color`: if you add to a `colour` coloumn the data is stored but won't automatically affect the plot.
+
+To add the color attribute, first create the column with an `NA` (refers to 'not available') value
+
+```{r}
+# Add the color attribute to the network nodes
+V(h)$color <- NA  # Initialse the new 'color' attribute as NA for all nodes
+```
+
+then fill it up using the categories saved above. If you also run `V(h)$color` in between adding these you'll see the how the `$color` column gets populated
+
+```{r}
+V(h)$color[V(h)$name %in% dark_side] <- "red" # set the dark side color name to red
+```
+
+To break this down: the `%in%` opeation tests if data in one column---in this case the `$name` variable which is to the *left* of `%in%`---matches with (*is in*) the options on the *right* of the `%in%`.
+
+```{r}
+V(h)$color[V(h)$name %in% light_side] <- "gold" # set the light side color name to gold
+V(h)$color[V(h)$name %in% neutral] <- "green" # set the color of neutral characters to green
+```
+Where it does match it returns `TRUE` and in this case that means the colour value intended gets saved in places where they match the dark, light and neural sides. It's complicated to explain but extremely useful.
+
+
+
+
+
 
 
 So: 
