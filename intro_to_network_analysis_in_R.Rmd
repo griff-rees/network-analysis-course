@@ -16,9 +16,9 @@ output:
   #   number_sections: true
   #   includes:
   #     before_body: doc_prefix.tex
-knit: (function(inputFile, encoding) {
-  rmarkdown::render(inputFile, encoding = encoding,
-  output_dir = "output", output_format = "all") })
+# knit: (function(inputFile, encoding) {
+#   rmarkdown::render(inputFile, encoding = encoding,
+#   output_dir = "output", output_format = "all") })
 ---
 
 ```{r setup, include=FALSE}
