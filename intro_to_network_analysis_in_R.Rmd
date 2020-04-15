@@ -126,7 +126,7 @@ There are many ways of storing network information, and we'll look at other opti
 g <- graph_from_data_frame(d=edges, vertices=nodes, directed=FALSE)
 ```
 
-We'll look at how this works in detail in the next section, but note here that we load the data frame of edges into the `d` parameter and the data frame of nodes (in this characters) as vertices (another name for nodes in network analysis). We're setting `directed=FALSE` for simplicity (more on this later).
+We'll look at how this works in detail in the next section, but note here that we load the `data.frame` of edges into the `d` parameter and the `data.frame` of nodes (in this characters) as vertices (another name for nodes in network analysis). We're setting `directed=FALSE` for simplicity (more on this later).
 
 ### Visualising a network
 
@@ -179,6 +179,8 @@ The basic components of networks/graphs are *nodes* and *edges*.
 
 Each of the characters is a *node*, also know as a *vertex*. This is analogous to records in classic datasets like people or firms, which can include characteristics such as age or income. Nodes can have different characteristics too--usually called node attributes--and these can help in analysing and understanding the network.
 
+### Node Attributes
+
 Let's take a deeper look at the data we used to create the plot above:
 
 ```{r, eval=FALSE}
@@ -190,18 +192,26 @@ As mentioned in a [previous section](#load-CSVs) there are two components of dat
 * name (character names)
 * id (integer)
 
-To see how that shows up when loaded into a `igraph` network use the `V` (vertices, synonymous with nodes) function:
+To see how that shows up when loaded into an `igraph` network use the `V` (vertices, synonymous with nodes) function:
 
-```{r, eval=False}
+```{r}
 V(g)
 ```
 
-The `name` attribute is particularly helpful in graph visualisation as it shows up automatically with `igraph` plots. If you've not used `R` before, here's a useful way to look at parts of data (usually columns in a table) using the `$`.
+This lists the vertices/nodes, the id it holds in memory and how many there are. The `name` attribute is particularly helpful in graph visualisation as it shows up automatically with `igraph` plots. If you've not used `R` before, here's a useful way to look at parts of data (usually columns in a table) using the `$` symbol after the variable name, followed by the column name (like in the `nodes` variable) or the attribute name (like in the `g` network variable).
 
-```{r, eval=False}
+```{r, eval=FALSE}
 nodes$name
 V(g)$name
 ```
+
+We also get a list of all attributes with
+
+```{r}
+vertex_attr(g)
+```
+
+### Adding Attributes
 
 Let's add another attribute. Following the classic notion of the force in start wars we can add data indicating which side of the *force* characters are associated with (or othe if neighther). First we create vectors of names using the `c` (combine) function to get a vector of strings (names of nodes in this case).
 
@@ -219,25 +229,91 @@ To add the color attribute, first create the column with an `NA` (refers to 'not
 
 ```{r}
 # Add the color attribute to the network nodes
-V(h)$color <- NA  # Initialse the new 'color' attribute as NA for all nodes
+V(g)$color <- NA  # Initialse the new 'color' attribute as NA for all nodes
 ```
 
 then fill it up using the categories saved above. If you also run `V(h)$color` in between adding these you'll see the how the `$color` column gets populated
 
 ```{r}
-V(h)$color[V(h)$name %in% dark_side] <- "red" # set the dark side color name to red
+V(g)$color[V(g)$name %in% dark_side] <- "red" # set the dark side color name to red
+V(g)$color
 ```
 
-To break this down: the `%in%` opeation tests if data in one column---in this case the `$name` variable which is to the *left* of `%in%`---matches with (*is in*) the options on the *right* of the `%in%`.
+To break this down: the `%in%` operation tests if data in one column---in this case the `$name` variable which is to the *left* of `%in%`---matches with (*is in*) the options on the *right* of the `%in%`. Where it does match it returns `TRUE`, and elsewhere it returns `FALSE`.
 
 ```{r}
-V(h)$color[V(h)$name %in% light_side] <- "gold" # set the light side color name to gold
-V(h)$color[V(h)$name %in% neutral] <- "green" # set the color of neutral characters to green
+V(g)$color[V(g)$name %in% light_side] <- "gold" # set the light side color name to gold
+V(g)$color[V(g)$name %in% neutral] <- "green" # set the color of neutral characters to green
+V(g)$color
 ```
-Where it does match it returns `TRUE` and in this case that means the colour value intended gets saved in places where they match the dark, light and neural sides. It's complicated to explain but extremely useful.
 
+In this case that means the colour value intended gets saved in places where they match the dark, light and neural sides. It's complicated to explain but extremely useful.
 
+### Subgraphs
 
+These attributes can help us look at *subgraphs*: portions of the graph such as just the `dark_side`:
+
+```{r}
+dark_side_graph <- induced_subgraph(g, dark_side) # Using the dark_side variable from above
+V(dark_side_graph)
+```
+
+This raises an important point: so many aspects of the world can be thought of as a network, and just as populations are sampled to make summary claims---such as income distribution or age---we similarly often sample from networks to analyse them, and need to be aware that often there are portions of networks we cannot observe. Those sections may be very important, and in failing to observe them we can end up with very different structures and very different results.
+
+In the classic sense of probability theory the [law of large numbers](https://en.wikipedia.org/wiki/Law_of_large_numbers) suggests that often 1000 trials of an experiment, or random samples from a population (often needing weighting to be representative), can lead to representative results for the whole population. This can unfortunately be very difficult to manage in the case of networks [@browneSnowballSamplingUsing2005].
+
+<!-- Mention episode 1...?-->
+
+### Visualising
+
+It's worth acknowledging that we're focusing on specific attributes that help with visualisation. I got frustrated perparing some of these slides because I tried doing something *like* this but with a variation in spelling...
+
+<!--Survey on confusion between British and American spelling-->
+<!--Survey on British and American meaning of biscuit-->
+
+```{r}
+# load the data to a new variable (f) in the same way we loaded for g prior to adding colour
+f <- graph_from_data_frame(d=edges, vertices=nodes, directed=FALSE)
+
+# Add a colour attribute which using the British rather than American spelling...
+V(f)$colour <- NA  # Initialse the new 'colour' attribute as NA for all nodes
+V(f)$colour[V(f)$name %in% dark_side] <- "red" # set the dark side colour name to red
+V(f)$colour[V(f)$name %in% light_side] <- "gold" # set the light side colour name to gold
+V(f)$colour[V(f)$name %in% neutral] <- "green" # set the colour of neutral characters to green
+plot(f)
+```
+
+Notice no difference in colour. Now compare that with 
+
+```{r}
+plot(g)
+```
+
+This should illustrate two things: 
+
+* You can add lots of attributes to nodes in a way similar to adding a column of data to a normal `data.frame` like the `nodes` variable
+* Some attributes can have a special role in particular network packages, such as `color` in `igraph`
+
+Similarly: you can visualise specific sections of a graph, and that can be helpful in providing better detail/easier to read but it's often worth presenting it alongside the larger network it's subsampled from
+
+```{r}
+plot(dark_side_graph)
+```
+
+Like many other quantitative methodologies there are many other types of attributes that can apply to nodes such as
+
+* Numerical (age, body mass index, income)
+* Categorical (ethnicity, class, nationality, sector, side of the force (or nutral))
+* Geographic (coordinates)
+
+We'll return to the applicablity of these later but generally: most variables that can be used in classic statistical analysis can be applied in network analysis. It might be hard... but that data can generally be useful. 
+
+To close: *be wary of sampling issues in network analysis!*
+<!-- Ask for general feelings/survey for break -->
+
+## Edges
+
+Edges, also called vertices, the connections in networks/graphs. They can be friendship, kinship, contracts, following, liking, debt, etc. Our conversation right now is via a digital network, but if we were in the lab we'd originally planned to use there it would still be face to face, just with a lot more physical movement and scribbling on a white board.
 
 
 
@@ -255,7 +331,7 @@ For example, we learn that C-3PO and R2-D2 appeared in 17 scenes together.
 
 How do we convert these two datasets into a network object in R? There are multiple packages to work with networks, but the most popular is `igraph` because it's very flexible and easy to do, and in my experience it's much faster and scales well to very large networks. Other packages that you may want to explore are `sna` and `networks`. We'll see an example later in this class, because some network modeling packages are not compatible with `igraph`.
 
-Now, how do we create the igraph object? We can use the `graph_from_data_frame` function, which takes two arguments: `d`, the data frame with the edge list in the first two columns; and `vertices`, a data frame with node data with the node label in the first column. (Note that igraph calls the nodes `vertices`, but it's exactly the same thing.)
+Now, how do we create the igraph object? We can use the `graph_from_data_frame` function, which takes two arguments: `d`, the `data.frame` with the edge list in the first two columns; and `vertices`, a `data.frame` with node data with the node label in the first column. (Note that igraph calls the nodes `vertices`, but it's exactly the same thing.)
 
 ```{r, message=FALSE}
 g <- graph_from_data_frame(d=edges, vertices=nodes, directed=FALSE)
