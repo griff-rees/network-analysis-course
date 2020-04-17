@@ -1,5 +1,6 @@
-# install.packages("igraph")
-library(igraph)
+if (!require(igraph)) {
+    install.packages("igraph", repos="http://cran.uk.r-project.org")
+}
 setwd("~/Downloads/network-analysis-course/")
 nodes <- read.csv("data/star-wars-network-nodes.csv")
 edges <- read.csv("data/star-wars-network-edges.csv")
@@ -27,4 +28,3 @@ V(g)$color[V(g)$name %in% neutral] <- "green"
 dark_side_graph <- induced_subgraph(g, dark_side)
 
 V(dark_side_graph)
-
