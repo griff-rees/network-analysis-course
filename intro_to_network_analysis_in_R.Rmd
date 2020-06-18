@@ -28,6 +28,10 @@ if (!require(igraph)) {
     install.packages("igraph", repos="http://cran.uk.r-project.org")
 }
 
+if (!require(snahelper)) {
+    install.packages("snahelper",
+                     repos="http://cran.uk.r-project.org")
+}
 # if (!require(intergraph)) {
 #     install.packages("intergraph", repos="http://cran.uk.r-project.org")
 # }
@@ -42,7 +46,7 @@ Today we're going to demonstrate simple ways of loading network data, visualisat
 
 So a recurring point I'll make today is that there are lots of systems that can be represented as a network. Perhaps you're interested in **social** networks like twitter [@murthySociologicalUnderstandingSocial2012], but there are other types of networks that could be of interest [@teroRulesBiologicallyInspired2010]:
 
-<iframe width="560" height="315" src="http://www.youtube.com/embed/GwKuFREOgmo?rel=0" frameborder="0" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/HyzT5b0tNtk" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ## What is a Network?
 
@@ -85,7 +89,7 @@ library(igraph)
 
 We're going to jump into visualisation with `igraph` as a test of the install and a demonstration of visualisation options. Then we'll break it down into what's going on underneath but again, feel free to mess around with what's loaded as we continue on.
 
-We begin by loading node and edge data from [Dr Evelina Gabašová's](Dr Evelina Gabašová's) excellent dataset on [which characters appeared together in scenes of star wars films](http://evelinag.com/blog/2015/12-15-star-wars-social-network/). Shamlessly borrowing from an NYU [short course](https://github.com/pablobarbera/data-science-workshop/tree/master/sna) created by [Dr Pablo Barberá's](http://pablobarbera.com/) we focus on Episode IV - *A New Hope*.
+We begin by loading node and edge data from [Dr Evelina Gabašová's](Dr Evelina Gabašová's) excellent dataset on [which characters appeared together in scenes of Star Wars films](http://evelinag.com/blog/2015/12-15-star-wars-social-network/). Shamlessly borrowing from an NYU [short course](https://github.com/pablobarbera/data-science-workshop/tree/master/sna) created by [Dr Pablo Barberá's](http://pablobarbera.com/) we focus on Episode IV - *A New Hope*.
 
 You can have a look at my github repository for this course: <https://github.com/griff-rees/network-analysis-course> and download the repository. That includes the code for this handout and the data we're playing around with today.
 
@@ -374,7 +378,7 @@ Here's a newer diagram of the same network which is a bit easier to read from <h
 
 </center>
 
-With the additional information of the shapes in the first digram, which map to colours in the second, this is a way of demonstrating the separation of social groups by gender and also how those groups are very *weakly* tied together. Weakness in as much as only one connection is named across gender and it is not reciprocated. There are ways of quantifying how different groups are connected in networks which is outside the scope of the session today, but there is lots of research on this in many other types network analysis including social [@leskovecEmpiricalComparisonAlgorithms2010]. CONSIDER!!!
+With the additional information of the shapes in the first digram, which map to colours in the second, this is a way of demonstrating the separation of social groups by gender and also how those groups are very *weakly* tied together. Weakness in as much as only one connection is named across gender and it is not reciprocated. There are ways of quantifying how different groups are connected in networks which is outside the scope of the session today (though there's a bit later...), but there is lots of research on this in many other types network analysis including social [@leskovecEmpiricalComparisonAlgorithms2010].
 
 To summarise: undirected networks have two basic states between nodes
 
@@ -413,7 +417,7 @@ plot(d)
 
 #### Edge Attributes
 
-Just like nodes, edges can have attributes. The directionality in the previous section is an example of information associated with a tie, and the presence or absence of one. One of the most common examples of tie attributes is included in the star wars dataset, and is usually described as a *weighted tie*. This is the third column in `edges` labeled `weight`
+Just like nodes, edges can have attributes. The directionality in the previous section is an example of information associated with a tie, and the presence or absence of one. One of the most common examples of tie attributes is included in the Star Wars dataset, and is usually described as a *weighted tie*. This is the third column in `edges` labeled `weight`
 
 ```{r}
 head(edges)
@@ -482,7 +486,7 @@ plot(g)
 
 Hope it's clear on some screens. We've obviously got issues with positioning which is to come. We're very close to finishing the edge section. We've got one more part to cover then on to the details of visualisation.
 
-But before we do, once again we can use this visualisation (and the weight attribute to answer a question): which pair of characters share the most scenes in star wars IV?
+But before we do, once again we can use this visualisation (and the weight attribute to answer a question): which pair of characters share the most scenes in Star Wars IV?
 
 <!-- break/survey -->
 
@@ -494,9 +498,15 @@ So far the edges have all been via lists of pairs of node names, but other ways 
 g[]
 ```
 
-For those of you interested in the details, the matrix is symmetrical if undirected and potentially asymetrical if directed. Each row and column are lists of connections between one node and all the others (including itself, which is the diagonal down the middle). I'm going to leave that there for today but just to give you some idea of where that comes from and what that means if you see a package asking for an ajacency matrix. CONSIDER!!!!!!!!!!!
+For those of you interested in the details, the matrix is symmetrical if undirected and potentially asymetrical if directed. Each row and column are lists of connections between one node and all the others (including itself, which is the diagonal down the middle). I'm going to leave that there for today but just to give you some idea of where that comes from and what that means if you see a package asking for an ajacency matrix.
 
-Note: there aren't any cases of links to oneself in the Star Wars example (which wouldn't make sense in a film... except for maybe a sci-fi time travel one) but in other cases that can be clearer, such as emailing yourself (something I do all the time as reminders).
+As an exercise: spot the differences to the directed ajacency matrix:
+
+```{r}
+d[]
+```
+
+Note: there aren't any cases of links to oneself in the Star Wars example (which wouldn't make sense in a film... except for maybe a sci-fi time travel one) but in other cases that can be applicable, such as emailing oneself (something I do all the time as reminders).
 
 ## Visualisation
 
@@ -551,7 +561,7 @@ Here we've now specified the `set.seed(3339)` command, which means that the rand
 
 ### Interactive layout
 
-But: should we just keep trying different numbers until it looks good? That's a really annoying problem, and a reason why there are many options for visualising networks. `igraph` has a basic options to help with this but it can be difficult to set up and at the moment it's more likely to work on windows and linux than macOS. There is a workaround for macOS: <https://github.com/sethrfore/homebrew-r-srf> but now's not the time to try.
+But: should we just keep trying different numbers until it looks good? That's a really annoying problem, and a reason why there are many options for visualising networks. `igraph` has a basic option to help with this but it can be difficult to set up and at the moment it's more likely to work on windows and linux than macOS. There is a workaround for macOS: <https://github.com/sethrfore/homebrew-r-srf> but now's not the time to try.
 
 ```{r, eval=FALSE}
 set.seed(3339)  # Speficy a seed for reproducing network layout
@@ -561,20 +571,27 @@ legend(x=.75, y=.75, legend=c("Dark side", "Light side", "Neutral"),
        pch=21, pt.bg=c("red", "gold", "green"), pt.cex=2, bty="n")
 ```
 
-There are a number of other options including 
+`snahelper` (included in this above) is another very new option (apologies for the lack of warning). It's a collection of tools which seem to work accross platforms and provide sophisticated options for altering graphs interactively.
 
-* `ggnetwork`: `R` package for use with `ggplot`
+```{r, eval=FALSE}
+library(snahelper)
+SNAhelperGadget(g)
+```
+
+Other other options include 
+
+* `ggnetwork`: `R` package for use with `ggplot`, related to `snahelper`
 * `gephi`: a standalone package for interactive arrangements <https://gephi.org/>
-``
+
 <!-- add another poll question here on the visualisation-->
 
 # Lab 1
 
-We've covered loading and basic visualisation of network data. To see how it works on data that might be closer to research you're interested in we're going to run a workshop with another, more _real world_ dataset from twitter. 
+We've covered loading and basic visualisation of network data. To see how it works on data that might be closer to research you're interested in we're going to run a workshop with another, more _real world_ dataset from twitter.
 
 In the folder with the Star Wars data you should see two data files called `congress-twitter-network-edges.csv` and `congress-twitter-network-nodes.csv`.
 
-Your task, should you choose to accept it, is to load these datafiles, visualise them, and demonstrate a research question it can answer. May the *force* plot be with you.
+Your task, should you choose to accept it, is to load these datafiles, visualise them, and have a go at answering a research question. Hint: may the *force* plot be with you.
 
 <!-- some hints-->
 
@@ -603,47 +620,56 @@ If any of you saw my taster session, this might be familiar. For the rest: this 
 
 So it's worth once more bearing in mind that network analysis is hard, and there are issues with methods, application and interpretability. But: keeping that in mind, we shall endeavor.
 
-## Density
+## Summary (Marco-ish)
+
+We'll start with analyses that summarise the network structure. It's helpful to get an overview before drilling down to specific sections of a network. The differences between *undirected* and *directed* networks feature heavily and I'll try to cover that throughout. This is very quick and meant as hints of how this can be useful. 
+
+<!--
+### Size
+
+The size of a network is usaully in reference to the number of *edges* rather than the number of *nodes* but this can vary. I've found this confusing in the past, and it's slightly more confusing when you're differentiating between directed and undericted networks.
+
+#### Directed
+
+I generally start with the undirected examples below, but here it's easier to start with a directed network
+
+```{r}
+gsize(d)
+```
+
+this is simply the number of edges. Seems straightforward, but remember the adjacency matrix is *asymetric*...
+
+#### Undirected
+
+Undirected networks *by definition* map to *symmetric* adjacency matrices, and so the maximum number of edges is half the number of nodes. So: the definition of an undirected network is half the number of edges
+
+```{r}
+gsize(g)
+```
+-->
+
+### Density
 
 One of the first and most straight forward components of quantitative assessment is density. Density is a measure of how many connections there are between nodes divided to how many *possible* connections. It's often just called network density, but the `igraph` method is `edge_density` to highlight that it's specific to edges.
 
 ```{r}
 edge_density(g)
 ```
-<!-- mention difference of subgraphs and how this consideres disconnected nodes-->
 
-## Reciprocity (cue Laryn Hill's *Ex-Factor*)
-
-Reciprocity is specific to directed networks so let's return to the previously created `d` (for directed) network for this FIX:
+note that the combinatorics of directed networks are (normally) *twice* that of undirected networks
 
 ```{r}
-is_directed(d)
-reciprocity(d)
+edge_density(d)
 ```
+<!-- mention difference of subgraphs and how this consideres disconnected nodes and that it's half of the directed example-->
 
-This is a ratio of how may edges are reciprocated, which is the ratio between unidirected edges---where entity $A$ is connected to entity $B$, but not the other way around
-
-$$a \de b$$
-
-versus bidirected edges where both $a$ and $b$ are connected
-
-$$a \leftrightarrow b$$
-
-The default metric here is relative to connections *not including unconnected pairs of nodes*. There's another option where all possibilities are included
-
-```{r}
-reciprocity(d, mode="ratio")
-```
-<!-- question on comparison between measures -->
-It's worth being careful which one you use justifying which in analysis.
-
-## Number of components
+### Number of components
 
 A component is a portion of a network, often referred to as a subgraph but sometimes is a short hand for the *largest connected component*. These are ways of looking at and assessing separate (because of no ties) parts of a network.
 
-### Connected Components
+#### Connected Components
 
-The first thing to consider in these cases is whether the network is connected, meaning that every node has at least one edge to another. 
+The first thing to consider in these cases is whether the network is connected, meaning that every node has at least one directed edge to another. 
 
 ```{r}
 is_connected(g)
@@ -658,26 +684,269 @@ components(g)
 
 `$no` indicates the number of components, `$csize` is the size of these components and `$membership` lists which components each node is in. Note: this isn't a count of components, nodes can only be in 1. `GOLD FIVE` is in component 2, not 2 components.
 
-### Weak
+These results are fine for *undericted networks* but for *directed networks* things are (as ever) more complicated:
 
-### Strong
+#### Weak connectivity in directed networks
 
-## Distance
+Weak connect meanse that there is at least one path from any node in a component to any other in that component, even if it doesn't follow the same *direction*. So if we have $a \de b; c \de b$ but not $c \de a$ then there  is 1 connected. 
 
-## Degree
+```{r}
+connectivity_example <- graph(c("a", "b", "c", "b"))
+components(connectivity_example)
+```
 
-## Centrality
+This is the same as the undirected example
 
-## Bipartite
+```{r}
+V(d)
+components(d)
+```
 
-## Visualisation
+#### Strong connectivity in directed networks
+
+Strong connectivity includes the directionality of connections, so if a directed path _doesn't_ exist between a pair of nodes then they aren't considered connected. Returning to the example above: 
+
+```{r}
+components(connectivity_example, mode = "strong")
+```
+
+but if we make one of the connections bidirectional ($b \leftrightarrow a$), then we have one fewer component
+
+```{r}
+connectivity_example <- add_edges(connectivity_example, c("b", "a"))
+components(connectivity_example, mode = "strong")
+```
+The directed Star Wars network:
+
+```{r}
+components(d, mode = "strong")
+```
+#### Extract components
+
+Just as a basic example (feel free to extrapolate many options) you can also extract components as separate graph objects. This was demonstrated above with the `induced_subgraph` command, but for that we had to specify sections of the network that would be less convenient than the `decompose` function
+
+```{r}
+decompose(d)
+```
+
+We'll come back to this later.
+
+### Diameter
+
+Diameter is the longest shortest path (confusing eh?). To unpack: find the shortest paths between every pair of nodes within the same component and then find the maximum of those shortest paths. Once again undirected vs directed makes a difference.
+
+#### Unweighted
+
+For ease of demonstration we will avoid the default which includes weights, first undirected:
+
+```{r}
+diameter(g, weights=NA)  # Weights are included by default, more later
+get_diameter(g, weights=NA)
+farthest_vertices(g, weights=NA)
+```
+
+and then directed:
+
+```{r}
+diameter(d, weights=NA)
+get_diameter(d, weights=NA)
+farthest_vertices(d, weights=NA)
+```
+
+#### Weighted
+
+By default, if edges are weighted then that is included in distance measures and can lead to different results, once again varying between undirected
+
+```{r}
+diameter(g)  # Weights are included by default
+get_diameter(g)
+farthest_vertices(g)
+```
+
+and directed
+
+```{r}
+diameter(d)
+get_diameter(d)
+farthest_vertices(d)
+```
+
+<!--
+### Reciprocity (cue Lauryn Hill's *Ex-Factor*)
+
+Reciprocity is the ratio of cases where ties are reciprocated and is generally inapplicable to undirected networks because those ties are effectively all reciprocated.
+
+#### When reciprocity is 0 or 1 (min or max)
+
+```{r}
+is_directed(d)
+reciprocity(d)
+is_directed(g)
+reciprocity(g)
+```
+
+0 for the directed and 1 for the undirected? Weird eh? By definition all ties in an undirected network are analogous to bidirectional ties, so by definition the ratio is 100% (1). But why doesn't this work for the directed example? This is because of that pesky *isolated* node, which means that if there are multiple *connected components* then by definition the result is 0. 
+#### Old or _traditional_ ratio reciprocity
+
+To illustrate this more easily let's return to the simple 3 node example above:
+
+```{r}
+reciprocity(connectivity_example, mode="ratio")
+E(connectivity_example)
+```
+
+Now we've got a value between 0 and 1, which is the proportion of ties that are reciprocated. Those are cases where entity $a$ is bidirectionally connected to entity $b$
+
+$$a \leftrightarrow b$$
+that is a reciprical tie. But the other tie is not reciprocal
+$$c \de b$$
+
+so the ratio is $1:2$. This isn't the default option though, which we'll get to later.
+
+Note this still doesn't solve the components issue:
+
+```{r}
+reciprocity(d, mode="ratio") 
+```
+
+because the traditional model adheres to the definitions of 1 and 0 listed above. We need to look at a connected component (in this case the largest connected component).
+
+#### Old ratio of largest connected component
+
+The default metric is complicated so it's easiest to stick with the `ratio` option to demonstrate the use of the `decompose` command to see the list of connected components. 
+
+```{r}
+decompose(d)
+```
+
+there are more options for decompose, but to focus on the largest we index (staring from 1, rather than `python` starting from 0)
+
+```{r}
+decompose(d)[[1]]
+reciprocity(decompose(d)[[1]], mode="ratio")
+```
+
+
+<!-- question on comparison between measures -->
+<!-- It's worth being careful deciding which one(s) you use and justifying that choice in your research.
+
+#### Default method of largest component
+
+I've avoided the mathematics thus far given the complexity of covering all this material, and I'm afraid it would take some time to explain this so I'm just going to present the equation here for reference. 
+
+This is the default method in `igraph` and arguably most broadly applicable method for calculating centrality [@garlaschelliPatternsLinkReciprocity2004].
+
+-->
+<!-- ## Bipartite-->
+
+<!--- def need break -->
+
+## Node Properties (Micro-ish)
+
+Again, we're racing through a lot of things so there's much more to ideally cover, but we'll finish with a set of analysis options at node rather than graph level. Many of these will also assume a connected component to make useful relative comparisons.
+
+### Degree
+
+Degree in a network context is how many edges a node has. Once again the undirected vs directed variation is important. Given this is an individual level calculation we have to choose a node or a set of nodes. We can begin with a degree distribution to get a flavour of what's worth focusing on
+
+#### Undirected and default directed
+
+The degree command for the undirected network will return the number of edges each node has by default. You can add a `normalized` parameter to indicate it as a proportion of the total degrees.
+```{r}
+degree(g)
+degree(g, normalized = TRUE)
+```
+
+You can also add this to a `size` attribute on each node to incorporate that into the plot
+
+```{r, fig.width=12, fig.height=7}
+set.seed(3339)
+
+V(g)$size <- degree(g)
+
+plot(g, layout=layout_with_fr, main="Force-directed")
+legend(x=.75, y=.75, legend=c("Dark side", "Light side", "Neutral"), 
+       pch=21, pt.bg=c("red", "gold", "green"), pt.cex=2, bty="n")
+```
+
+Directed graphs use the `mode = 'all'` by default so size of the nodes ends up being the same as the undirected example. 
+
+```{r}
+degree(d, mode = "all") # All is the default, but for clairty
+```
+
+```{r, fig.width=12, fig.height=7}
+set.seed(3339)
+V(d)$size <- degree(g, mode = "all")
+
+plot(d, layout=layout_with_fr, main="Force-directed")
+legend(x=.75, y=.75, legend=c("Dark side", "Light side", "Neutral"), 
+       pch=21, pt.bg=c("red", "gold", "green"), pt.cex=2, bty="n")
+```
+But there are variations...
+
+#### Directed In Degree
+
+The in degree is the number of cases where a node is recieving a connection 
+
+```{r}
+degree(d, mode = "in")
+```
+
+
+so `R2-D2` has pretty much all his edges recieved while `CHEWBACCA` has arguably more extrovert.
+
+#### Directed Out Degree
+
+The out degree is the number of cases where a node is source of a connection 
+
+```{r}
+degree(d, mode = "out")
+```
+
+Hence `R2-D2` on 0 (seems to get all the attention, but not reciprocate) while `CHEWBACCA`'s focus is on others... awww. 
+
+### Centrality
+
+Last individual level thing we can cover today is centrality, of which, like everything else I've shown there are many variations. I won't go into this too much due to time but it's a very active area of research, especially in the hard sciences. Degree and it's variations is actually an example of this.
+
+#### Closeness
+
+This is the inverse of the shortest path between nodes and incorporates weights by default. The default focus is on received connections (`in` in the previous examples). Note the warnings, it's worth separating into connected components to avoid the shift from `GOLD FIVE`
+
+```{r}
+closeness(d, mode = "out")
+closeness(d, mode="in")
+closeness(d, mode="all")
+```
+
+#### Betweeness
+
+This is a way of looking at connections with a focus on individuals roles in the structure. Think back to the sociogram example: that one weak tie connected across genders, and while it's not strong like closeness, it's really important to the overall structure.
+
+```{r}
+betweenness(g)
+betweenness(d)
+```
+
+### PageRank
+Last flavour: this was the core example underlying Google's *initial* algorithm of structure in links between websites.
+
+```{r}
+page_rank(g)
+page_rank(d)
+```
+
+
+<!--## Visualisation -->
 
 # Lab 2
 
 Take what we've covered and apply it to the twitter dataset. 
+
 # What else?
 
-## There's lots
+## There's lots (just a taster)
 
 - Negative ties (few studies but a recent [*Social Networks* special issue](https://www.sciencedirect.com/journal/social-networks/vol/60))
 - [Erdős–Bacon number](https://en.wikipedia.org/wiki/Erd%C5%91s%E2%80%93Bacon_number)
@@ -689,7 +958,7 @@ Take what we've covered and apply it to the twitter dataset.
   + Excellent github repo <https://github.com/kateto/R-Network-Visualization-Workshop>
 * A bunch of useful links to papers/software etc. <https://github.com/briatte/awesome-network-analysis>
   
-# Thanks
+*Thanks!*
 
 <!--## Another network time series...
 ![Network dynamics of creativity](collab_canvas.mov){ width=60% } -->
