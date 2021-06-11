@@ -83,6 +83,12 @@ and then load it in your `R` session.
 library(igraph)
 ```
 
+**In the meantime, Mark's loading ggraph**
+
+```{r}
+library(ggraph)
+```
+
 <!--Survey of people having completed this.-->
 
 ## Test loading `igraph` data
@@ -149,6 +155,18 @@ plot(g)
 
 Mostly illegible eh? Your plot will have a different layout but as long as it looks similar we should be ready to go.
 
+**Let's do it in ggraph**
+
+```{r}
+
+ggraph(g) +
+  geom_node_point() +
+  geom_edge_fan() +
+  geom_node_label(aes(label = name),
+                  repel = T) +
+  theme_graph()
+```
+
 <!--Survey of this working for people.-->
 
 Even with this rough layout we can, however, answer a research question:
@@ -182,6 +200,28 @@ V(h)$color[V(h)$name %in% neutral] <- "green"
 plot(h, layout=layout_with_fr, main="Force-directed")
 legend(x=.75, y=.75, legend=c("Dark side", "Light side", "Neutral"), 
        pch=21, pt.bg=c("red", "gold", "green"), pt.cex=2, bty="n")
+```
+
+**Let's do it in ggraph**
+
+```{r}
+
+ggraph(h) +
+  geom_edge_link() +
+  geom_node_point(aes(fill = color),
+                  colour = "black",
+                  size = 5,
+                  shape = 21)  +
+  geom_node_label(aes(label = name),
+                  repel = TRUE) +
+  scale_fill_manual(values = c("gold",
+                               "green",
+                               "red"),
+                    labels = c("Light side",
+                               "Dark side",
+                               "Neutral")) +
+  theme_graph() +
+  labs(fill = "Affiliation")
 ```
 
 # Networks (aka Graphs)
@@ -311,10 +351,22 @@ This should illustrate two things:
 * You can add lots of attributes to nodes in a way similar to adding a column of data to a normal `data.frame` like the `nodes` variable
 * Some attributes can have a special role in particular network packages, such as `color` in `igraph`
 
+**This isn't a problem in ggraph because you have to specify it manually through  aes()**
+
 Similarly: you can visualise specific sections of a graph, and that can be helpful in providing better detail/easier to read. Returning to the `dark_side_graph` subsample 
 
 ```{r}
 plot(dark_side_graph)
+```
+
+**Or, in ggraph**
+```{r}
+ggraph(dark_side_graph) +
+  geom_node_point(size = 5) +
+  geom_edge_link() +
+  geom_node_label(aes(label = name),
+                  repel = TRUE)  +
+  theme_graph()
 ```
 
 This is a lot easier to read and can, as a way of zooming in, give us a clearer picture of some aspects of the structure. This becomes more crucial with much larger network datasets. It's already difficult to read the names of characters in these plots. Let's compare it with the other side of the force:
@@ -322,6 +374,19 @@ This is a lot easier to read and can, as a way of zooming in, give us a clearer 
 ```{r}
 light_side_graph <- induced_subgraph(g, light_side) # Using the light_side variable
 plot(light_side_graph)
+```
+
+**and in ggraph**
+
+```{r}
+
+ggraph(light_side_graph) +
+  geom_node_point(size = 5) +
+  geom_edge_link() +
+  geom_node_label(aes(label = name),
+                  repel = TRUE)  +
+  theme_graph()
+
 ```
 
 Interesting and detailed by itself, but again worth being aware that it can make a significant difference comparing this with the rest of the network, and potentially misleading without acknowledging the network it's sampled from.
@@ -415,6 +480,32 @@ d <- graph_from_data_frame(d=edges, vertices=nodes)
 plot(d)
 ```
 
+**Let's do it two different ways in ggraph**
+
+
+```{r}
+
+
+ggraph(d) +
+  geom_node_point(size = 5) +
+  geom_edge_link(arrow = arrow(),
+                 end_cap =  circle(3, 'mm')) +
+  geom_node_label(aes(label = name),
+                  repel = TRUE)  +
+  theme_graph()
+```
+
+```{r}
+
+ggraph(d) +
+  geom_node_point(size = 5) +
+  geom_edge_link( aes(alpha = ..index..)) +
+  geom_node_label(aes(label = name),
+                  repel = TRUE)  + 
+  scale_edge_alpha('Edge direction', guide = 'edge_direction') +
+  theme_graph()
+```
+
 #### Edge Attributes
 
 Just like nodes, edges can have attributes. The directionality in the previous section is an example of information associated with a tie, and the presence or absence of one. One of the most common examples of tie attributes is included in the Star Wars dataset, and is usually described as a *weighted tie*. This is the third column in `edges` labeled `weight`
@@ -484,6 +575,21 @@ And similar to node attributes, color has the extra significance of automaticall
 plot(g)
 ```
 
+**Or in ggraph**
+
+```{r}
+
+ggraph(g) +
+  geom_node_point(size = 5) +
+  geom_edge_link(aes(colour = color))  +
+  geom_node_label(aes(label = name),
+                  repel = TRUE) +
+  theme_graph() +
+  scale_edge_colour_manual(values = c("blue",
+                                 "red")) +
+  theme(legend.position = "none")
+```
+
 Hope it's clear on some screens. We've obviously got issues with positioning which is to come. We're very close to finishing the edge section. We've got one more part to cover then on to the details of visualisation.
 
 But before we do, once again we can use this visualisation (and the weight attribute to answer a question): which pair of characters share the most scenes in Star Wars IV?
@@ -531,6 +637,56 @@ plot(g, layout=layout_with_fr, main="Force-directed")
 
 Note that the size of the plot for the grid was specified, but for the inidividual example I've left it blank (default). The plot is entirely based on a random number generator, so everyone's will look a bit different. We can reproduce the same arrangement by specifying a seed (coming up below).
 
+**These are all straightforward in ggraph (and there's several more options)**
+
+```{r}
+
+### ggraph versions
+ggraph(g,
+       layout = "randomly") +
+  geom_edge_link() +
+  geom_node_point() +
+  geom_node_label(aes(label = name),
+                  repel = TRUE)  +
+  theme_graph()
+ggraph(g,
+       layout = "circle") +
+  geom_edge_link() +
+  geom_node_point() +
+  geom_node_label(aes(label = name),
+                  repel = TRUE)  +
+  theme_graph()
+ggraph(g,
+       layout = "star") +
+  geom_edge_link() +
+  geom_node_point() +
+  geom_node_label(aes(label = name),
+                  repel = TRUE)  +
+  theme_graph()
+ggraph(g,
+       layout = "tree") +
+  geom_edge_link() +
+  geom_node_point() +
+  geom_node_label(aes(label = name),
+                  repel = TRUE)  +
+  theme_graph()
+ggraph(g,
+       layout = "grid") +
+  geom_edge_link() +
+  geom_node_point()  +
+  geom_node_label(aes(label = name),
+                  repel = TRUE) +
+  theme_graph()
+# nb there are several force directed algorithms in ggraph
+ggraph(g,
+       layout = "fr") +
+  geom_edge_link() +
+  geom_node_point()  +
+  geom_node_label(aes(label = name),
+                  repel = TRUE) +
+  theme_graph()
+```
+
 ### Layout with node colouring and specific seed
 
 Bringing the node colouring back in, we can make the most of node and edge attributes.
@@ -555,6 +711,33 @@ set.seed(3339)  # Speficy a seed for reproducing network layout
 plot(g, layout=layout_with_fr, main="Force-directed")
 legend(x=.75, y=.75, legend=c("Dark side", "Light side", "Neutral"), 
        pch=21, pt.bg=c("red", "gold", "green"), pt.cex=2, bty="n")
+```
+
+**You can do all this in ggraph as well, I've just done it for one example to save it getting massively repetitive**
+```{r}
+
+ggraph(g, layout = "star") +
+  geom_edge_link(aes(colour = color)) +
+  geom_node_point(aes(fill = color),
+                  colour = "black",
+                  size = 5,
+                  shape = 21)   +
+  geom_node_label(aes(label = name),
+                  repel = TRUE) +
+  theme_graph() +
+  scale_edge_colour_manual(values = c("blue", 
+                                      "red"),
+                           labels = c("weight > 5",
+                                      "weight 5+")) +
+  scale_fill_manual(values = c("gold",
+                               "green",
+                               "red"),
+                    labels = c("light side",
+                               "neutral",
+                               "dark side")) +
+  labs(fill = "affiliation",
+       colour = "edge weight")
+
 ```
 
 Here we've now specified the `set.seed(3339)` command, which means that the random number generator *should* produce the same results on your screen. 
@@ -884,6 +1067,18 @@ legend(x=.75, y=.75, legend=c("Dark side", "Light side", "Neutral"),
        pch=21, pt.bg=c("red", "gold", "green"), pt.cex=2, bty="n")
 ```
 But there are variations...
+
+**Do it in ggraph**
+```{r}
+
+ggraph(g) +
+  geom_node_point(aes(size = size)) +
+  geom_edge_link() +
+  geom_node_label(aes(label = name),
+                  repel = TRUE) +
+  theme_graph() +
+  labs(size = "degree")
+```
 
 #### Directed In Degree
 
